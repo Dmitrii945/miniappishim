@@ -477,65 +477,6 @@
             transform: translateY(-1px);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
-        /* Стили для аналитики */
-        .analytics-panel {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .analytics-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: #1F2937;
-        }
-
-        .analytics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .analytics-card {
-            background: #F9FAFB;
-            border-radius: 8px;
-            padding: 12px;
-            text-align: center;
-        }
-
-        .analytics-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #3B82F6;
-        }
-
-        .analytics-label {
-            font-size: 0.875rem;
-            color: #6B7280;
-            margin-top: 4px;
-        }
-
-        .reset-button {
-            background-color: #EF4444;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            width: 100%;
-        }
-
-        .reset-button:hover {
-            background-color: #DC2626;
-            transform: translateY(-1px);
-        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -609,15 +550,6 @@
                             <div>
                                 <div class="font-medium">Избранное</div>
                                 <div class="text-sm text-gray-600">Сохраненные товары</div>
-                            </div>
-                        </div>
-
-                        <!-- Аналитика -->
-                        <div class="menu-item" onclick="showAnalytics(); closeSideMenu();">
-                            <i data-feather="bar-chart-2"></i>
-                            <div>
-                                <div class="font-medium">Аналитика</div>
-                                <div class="text-sm text-gray-600">Статистика действий</div>
                             </div>
                         </div>
 
@@ -704,19 +636,6 @@
         let deferredPrompt = null;
         let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
-        // Статистика и аналитика
-        let analyticsData = JSON.parse(localStorage.getItem('analytics')) || {
-            shareClicks: 0,
-            detailsClicks: 0,
-            phoneClicks: 0,
-            taxiClicks: 0,
-            gisClicks: 0,
-            telegramClicks: 0,
-            favoriteAdds: 0,
-            productViews: 0,
-            lastReset: Date.now()
-        };
-
         // Контактная информация
         const CONTACT_INFO = {
             phone: "60-01-60",
@@ -742,122 +661,6 @@
             pageTitle: document.getElementById('pageTitle'),
             installButton: document.getElementById('installButton')
         };
-
-        // ========== АНАЛИТИКА И СТАТИСТИКА ==========
-
-        // Функция для увеличения локальных счетчиков
-        function incrementLocalCounter(counterName) {
-            console.log(`Увеличиваем счетчик: ${counterName}`, analyticsData);
-            if (analyticsData.hasOwnProperty(counterName)) {
-                analyticsData[counterName]++;
-                localStorage.setItem('analytics', JSON.stringify(analyticsData));
-                console.log(`Новое значение ${counterName}:`, analyticsData[counterName]);
-            } else {
-                console.warn(`Счетчик ${counterName} не найден в analyticsData`);
-            }
-        }
-
-        // Функция для сброса статистики
-        function resetAnalytics() {
-            if (confirm('Вы уверены, что хотите сбросить всю статистику? Это действие нельзя отменить.')) {
-                analyticsData = {
-                    shareClicks: 0,
-                    detailsClicks: 0,
-                    phoneClicks: 0,
-                    taxiClicks: 0,
-                    gisClicks: 0,
-                    telegramClicks: 0,
-                    favoriteAdds: 0,
-                    productViews: 0,
-                    lastReset: Date.now()
-                };
-                localStorage.setItem('analytics', JSON.stringify(analyticsData));
-                
-                if (tg) {
-                    tg.showAlert('Статистика успешно сброшена!');
-                } else {
-                    alert('Статистика успешно сброшена!');
-                }
-                
-                // Обновляем отображение аналитики
-                showAnalytics();
-            }
-        }
-
-        // Функция для отображения аналитики
-        function showAnalytics() {
-            lastAction = { type: 'showAnalytics' };
-            
-            navigationStack = [];
-            updateBreadcrumbs([{ name: 'Аналитика', action: 'showAnalytics' }]);
-            elements.pageTitle.textContent = 'Аналитика';
-            
-            const totalClicks = analyticsData.shareClicks + analyticsData.detailsClicks + analyticsData.phoneClicks;
-            const lastResetDate = new Date(analyticsData.lastReset).toLocaleDateString('ru-RU');
-            
-            let html = `
-                <div class="analytics-panel">
-                    <h2 class="analytics-title">Статистика действий</h2>
-                    
-                    <div class="analytics-grid">
-                        <div class="analytics-card">
-                            <div class="analytics-value">${analyticsData.shareClicks}</div>
-                            <div class="analytics-label">Поделиться</div>
-                        </div>
-                        <div class="analytics-card">
-                            <div class="analytics-value">${analyticsData.detailsClicks}</div>
-                            <div class="analytics-label">Подробнее</div>
-                        </div>
-                        <div class="analytics-card">
-                            <div class="analytics-value">${analyticsData.phoneClicks}</div>
-                            <div class="analytics-label">Телефон</div>
-                        </div>
-                        <div class="analytics-card">
-                            <div class="analytics-value">${analyticsData.taxiClicks}</div>
-                            <div class="analytics-label">Такси</div>
-                        </div>
-                        <div class="analytics-card">
-                            <div class="analytics-value">${analyticsData.gisClicks}</div>
-                            <div class="analytics-label">2GIS</div>
-                        </div>
-                        <div class="analytics-card">
-                            <div class="analytics-value">${analyticsData.telegramClicks}</div>
-                            <div class="analytics-label">Telegram</div>
-                        </div>
-                        <div class="analytics-card">
-                            <div class="analytics-value">${analyticsData.favoriteAdds}</div>
-                            <div class="analytics-label">В избранное</div>
-                        </div>
-                        <div class="analytics-card">
-                            <div class="analytics-value">${analyticsData.productViews}</div>
-                            <div class="analytics-label">Просмотры</div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4 p-3 bg-blue-50 rounded-lg">
-                        <p class="text-sm text-blue-700">
-                            <i data-feather="info" class="w-4 h-4 inline mr-1"></i>
-                            Всего кликов: <strong>${totalClicks}</strong><br>
-                            Последний сброс: <strong>${lastResetDate}</strong>
-                        </p>
-                    </div>
-                    
-                    <button onclick="resetAnalytics()" class="reset-button">
-                        <i data-feather="refresh-cw" class="w-4 h-4 mr-2"></i>
-                        Сбросить статистику
-                    </button>
-                </div>
-                
-                <button onclick="loadSections()" class="back-button">
-                    <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
-                    Назад в каталог
-                </button>
-            `;
-            
-            elements.content.innerHTML = html;
-            scheduleFeatherReplace();
-            updateBackButton();
-        }
 
         // ========== УТИЛИТЫ ==========
 
@@ -952,21 +755,15 @@
 
         // ФУНКЦИИ ДЛЯ КНОПОК ТЕЛЕФОНА И 2GIS
         function makePhoneCall() {
-            console.log('makePhoneCall вызвана');
-            incrementLocalCounter('phoneClicks');
-            
             const phoneNumber = CONTACT_INFO.phone;
             if (tg) {
                 tg.showAlert(`Телефон: ${phoneNumber}\n\nСкопируйте номер и позвоните нам!`);
             } else {
-                alert(`Телефон: ${phoneNumber}\n\nСкопируйте номер и позвоните нам!`);
+                alert(`Телефон: ${phoneNumber}\n\nСкопируйте номер и позбоните нам!`);
             }
         }
 
         function open2GIS() {
-            console.log('open2GIS вызвана');
-            incrementLocalCounter('gisClicks');
-            
             if (tg) {
                 tg.openLink(CONTACT_INFO.gisUrl);
             } else {
@@ -975,9 +772,6 @@
         }
 
         function openTelegramChannel() {
-            console.log('openTelegramChannel вызвана');
-            incrementLocalCounter('telegramClicks');
-            
             if (tg) {
                 tg.openLink(CONTACT_INFO.telegramChannel);
             } else {
@@ -987,9 +781,6 @@
 
         // ФУНКЦИИ ДЛЯ ВЫЗОВА ТАКСИ
         function callTaxi() {
-            console.log('callTaxi вызвана');
-            incrementLocalCounter('taxiClicks');
-            
             const address = encodeURIComponent(CONTACT_INFO.address);
             const lat = CONTACT_INFO.coordinates.lat;
             const lon = CONTACT_INFO.coordinates.lon;
@@ -1033,9 +824,6 @@
         }
 
         function openYandexTaxi() {
-            console.log('openYandexTaxi вызвана');
-            incrementLocalCounter('taxiClicks');
-            
             const lat = CONTACT_INFO.coordinates.lat;
             const lon = CONTACT_INFO.coordinates.lon;
             const address = encodeURIComponent(CONTACT_INFO.address);
@@ -1051,9 +839,6 @@
         }
 
         function openUber() {
-            console.log('openUber вызвана');
-            incrementLocalCounter('taxiClicks');
-            
             const lat = CONTACT_INFO.coordinates.lat;
             const lon = CONTACT_INFO.coordinates.lon;
             const address = encodeURIComponent(CONTACT_INFO.address);
@@ -1190,9 +975,6 @@
                 }
             } else {
                 // Добавляем в избранное
-                console.log('Добавляем в избранное');
-                incrementLocalCounter('favoriteAdds');
-                
                 const navigation = getCurrentNavigation();
                 favorites.push({
                     id: productId,
@@ -1422,9 +1204,6 @@
         }
 
         function contactAboutSpecificProductFromFavorites(favoriteIndex) {
-            console.log('contactAboutSpecificProductFromFavorites вызвана');
-            incrementLocalCounter('detailsClicks');
-            
             const favorite = favorites[favoriteIndex];
             const product = favorite.product;
             const navigation = favorite.navigation;
@@ -1449,9 +1228,6 @@
 
         // ФУНКЦИЯ ДЛЯ ПОДЕЛИТЬСЯ ТОВАРОМ
         function shareProduct(productIndex) {
-            console.log('shareProduct вызвана', productIndex);
-            incrementLocalCounter('shareClicks');
-            
             const product = currentProducts[productIndex];
             const navigation = getCurrentNavigation();
             
@@ -1495,9 +1271,6 @@
         }
 
         function shareProductFromFavorites(favoriteIndex) {
-            console.log('shareProductFromFavorites вызвана', favoriteIndex);
-            incrementLocalCounter('shareClicks');
-            
             const favorite = favorites[favoriteIndex];
             const product = favorite.product;
             const navigation = favorite.navigation;
@@ -1524,31 +1297,6 @@
             } else {
                 const message = `Чтобы поделиться товаром, перейдите по ссылке:\n\n${shareUrl}\n\nИли скопируйте команду для бота:\n\n/share ${sectionHash} ${categoryHash} ${modelHash} ${submodelHash} 0`;
                 alert(message);
-            }
-        }
-
-        function contactAboutSpecificProduct(productIndex) {
-            console.log('contactAboutSpecificProduct вызвана', productIndex);
-            incrementLocalCounter('detailsClicks');
-            
-            const product = currentProducts[productIndex];
-            const navigation = getCurrentNavigation();
-            
-            const productInfo = [
-                navigation.section?.name,
-                navigation.category?.name,
-                navigation.model?.name,
-                navigation.submodel?.name,
-                product?.color,
-                product?.price && product.price !== 'Цена не указана' ? product.price : ''
-            ].filter(Boolean).join(' → ');
-
-            const message = `Здравствуйте! Интересует товар: ${productInfo}. Подскажите подробности.`;
-            
-            if (tg) {
-                tg.openTelegramLink(`https://t.me/SkidkaService01?text=${encodeURIComponent(message)}`);
-            } else {
-                window.open(`https://t.me/SkidkaService01?text=${encodeURIComponent(message)}`, '_blank');
             }
         }
 
@@ -1924,10 +1672,6 @@
                 return;
             }
 
-            // Увеличиваем счетчик просмотров товаров
-            incrementLocalCounter('productViews');
-            console.log('Увеличили productViews:', analyticsData.productViews);
-
             renderAllProducts();
             updateBackButton();
         }
@@ -1972,23 +1716,6 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-sm text-gray-500">${favorites.length} товаров</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            // Добавляем кнопку аналитики в главное меню
-            html += `
-                <div class="category-card fade-in" onclick="showAnalytics()">
-                    <div class="p-4">
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center">
-                                <i data-feather="bar-chart-2" class="w-5 h-5 mr-3 text-blue-500"></i>
-                                <h3 class="font-semibold text-lg tg-theme-text text-contrast">Аналитика</h3>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-sm text-gray-500">Статистика</span>
                             </div>
                         </div>
                     </div>
@@ -2357,6 +2084,28 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        function contactAboutSpecificProduct(productIndex) {
+            const product = currentProducts[productIndex];
+            const navigation = getCurrentNavigation();
+            
+            const productInfo = [
+                navigation.section?.name,
+                navigation.category?.name,
+                navigation.model?.name,
+                navigation.submodel?.name,
+                product?.color,
+                product?.price && product.price !== 'Цена не указана' ? product.price : ''
+            ].filter(Boolean).join(' → ');
+
+            const message = `Здравствуйте! Интересует товар: ${productInfo}. Подскажите подробности.`;
+            
+            if (tg) {
+                tg.openTelegramLink(`https://t.me/SkidkaService01?text=${encodeURIComponent(message)}`);
+            } else {
+                window.open(`https://t.me/SkidkaService01?text=${encodeURIComponent(message)}`, '_blank');
+            }
+        }
+
         // ========== УПРАВЛЕНИЕ НАВИГАЦИЕЙ ==========
 
         function getCurrentNavigation() {
@@ -2684,8 +2433,6 @@
         window.retryLastAction = retryLastAction;
         window.handleImageError = handleImageError;
         window.handleImageLoad = handleImageLoad;
-        window.showAnalytics = showAnalytics;
-        window.resetAnalytics = resetAnalytics;
     </script>
 </body>
 </html>
