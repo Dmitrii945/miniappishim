@@ -691,7 +691,6 @@
         // Конфигурация
         const tg = window.Telegram?.WebApp;
         const API_BASE = 'https://dmitrii2613.pythonanywhere.com/api';
-        const ANALYTICS_API_BASE = 'https://dmitrii2613.pythonanywhere.com/api';
         const BOT_USERNAME = 'SSERVICE72_bot';
         const API_TIMEOUT = 30000;
         let debugMode = false;
@@ -746,41 +745,15 @@
 
         // ========== АНАЛИТИКА И СТАТИСТИКА ==========
 
-        // Функция для отправки статистики на сервер
-        async function sendAnalyticsEvent(eventType, eventData = {}) {
-            try {
-                // Локальное сохранение статистики
-                incrementLocalCounter(eventType);
-                
-                // Отправка на сервер
-                const response = await fetch(`${ANALYTICS_API_BASE}/analytics/event`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        event_type: eventType,
-                        event_data: eventData,
-                        timestamp: new Date().toISOString(),
-                        user_agent: navigator.userAgent,
-                        platform: tg ? 'telegram' : 'web'
-                    })
-                });
-
-                if (!response.ok) {
-                    console.warn('Не удалось отправить аналитику на сервер');
-                }
-            } catch (error) {
-                console.warn('Ошибка отправки аналитики:', error);
-                // Продолжаем работу даже при ошибке аналитики
-            }
-        }
-
         // Функция для увеличения локальных счетчиков
         function incrementLocalCounter(counterName) {
+            console.log(`Увеличиваем счетчик: ${counterName}`, analyticsData);
             if (analyticsData.hasOwnProperty(counterName)) {
                 analyticsData[counterName]++;
                 localStorage.setItem('analytics', JSON.stringify(analyticsData));
+                console.log(`Новое значение ${counterName}:`, analyticsData[counterName]);
+            } else {
+                console.warn(`Счетчик ${counterName} не найден в analyticsData`);
             }
         }
 
@@ -979,8 +952,8 @@
 
         // ФУНКЦИИ ДЛЯ КНОПОК ТЕЛЕФОНА И 2GIS
         function makePhoneCall() {
+            console.log('makePhoneCall вызвана');
             incrementLocalCounter('phoneClicks');
-            sendAnalyticsEvent('phone_click', { phone_number: CONTACT_INFO.phone });
             
             const phoneNumber = CONTACT_INFO.phone;
             if (tg) {
@@ -991,8 +964,8 @@
         }
 
         function open2GIS() {
+            console.log('open2GIS вызвана');
             incrementLocalCounter('gisClicks');
-            sendAnalyticsEvent('gis_click', { gis_url: CONTACT_INFO.gisUrl });
             
             if (tg) {
                 tg.openLink(CONTACT_INFO.gisUrl);
@@ -1002,8 +975,8 @@
         }
 
         function openTelegramChannel() {
+            console.log('openTelegramChannel вызвана');
             incrementLocalCounter('telegramClicks');
-            sendAnalyticsEvent('telegram_channel_click', { channel_url: CONTACT_INFO.telegramChannel });
             
             if (tg) {
                 tg.openLink(CONTACT_INFO.telegramChannel);
@@ -1014,8 +987,8 @@
 
         // ФУНКЦИИ ДЛЯ ВЫЗОВА ТАКСИ
         function callTaxi() {
+            console.log('callTaxi вызвана');
             incrementLocalCounter('taxiClicks');
-            sendAnalyticsEvent('taxi_menu_open');
             
             const address = encodeURIComponent(CONTACT_INFO.address);
             const lat = CONTACT_INFO.coordinates.lat;
@@ -1060,7 +1033,8 @@
         }
 
         function openYandexTaxi() {
-            sendAnalyticsEvent('yandex_taxi_click');
+            console.log('openYandexTaxi вызвана');
+            incrementLocalCounter('taxiClicks');
             
             const lat = CONTACT_INFO.coordinates.lat;
             const lon = CONTACT_INFO.coordinates.lon;
@@ -1077,7 +1051,8 @@
         }
 
         function openUber() {
-            sendAnalyticsEvent('uber_taxi_click');
+            console.log('openUber вызвана');
+            incrementLocalCounter('taxiClicks');
             
             const lat = CONTACT_INFO.coordinates.lat;
             const lon = CONTACT_INFO.coordinates.lon;
@@ -1103,7 +1078,6 @@
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
                         console.log('Пользователь принял установку');
-                        sendAnalyticsEvent('pwa_install_accepted');
                         if (tg) {
                             tg.showAlert('Приложение успешно добавлено на главный экран!');
                         } else {
@@ -1111,7 +1085,6 @@
                         }
                     } else {
                         console.log('Пользователь отклонил установку');
-                        sendAnalyticsEvent('pwa_install_declined');
                     }
                     
                     // Сбрасываем deferredPrompt после использования
@@ -1217,12 +1190,8 @@
                 }
             } else {
                 // Добавляем в избранное
+                console.log('Добавляем в избранное');
                 incrementLocalCounter('favoriteAdds');
-                sendAnalyticsEvent('favorite_add', { 
-                    product_id: productId,
-                    product_color: product.color,
-                    product_price: product.price
-                });
                 
                 const navigation = getCurrentNavigation();
                 favorites.push({
@@ -1453,6 +1422,7 @@
         }
 
         function contactAboutSpecificProductFromFavorites(favoriteIndex) {
+            console.log('contactAboutSpecificProductFromFavorites вызвана');
             incrementLocalCounter('detailsClicks');
             
             const favorite = favorites[favoriteIndex];
@@ -1470,11 +1440,6 @@
 
             const message = `Здравствуйте! Интересует товар из избранного: ${productInfo}. Подскажите подробности.`;
             
-            sendAnalyticsEvent('details_click_favorite', {
-                product_id: generateProductId(product),
-                product_info: productInfo
-            });
-            
             if (tg) {
                 tg.openTelegramLink(`https://t.me/SkidkaService01?text=${encodeURIComponent(message)}`);
             } else {
@@ -1484,6 +1449,7 @@
 
         // ФУНКЦИЯ ДЛЯ ПОДЕЛИТЬСЯ ТОВАРОМ
         function shareProduct(productIndex) {
+            console.log('shareProduct вызвана', productIndex);
             incrementLocalCounter('shareClicks');
             
             const product = currentProducts[productIndex];
@@ -1504,12 +1470,6 @@
             
             // Создаем ссылку на бота с командой /share
             const shareUrl = `https://t.me/${BOT_USERNAME}?start=share_${sectionHash}_${categoryHash}_${modelHash}_${submodelHash}_${productIndex}`;
-            
-            sendAnalyticsEvent('share_click', {
-                product_id: generateProductId(product),
-                product_color: product.color,
-                share_url: shareUrl
-            });
             
             if (tg) {
                 // В Telegram WebApp используем native share
@@ -1535,6 +1495,7 @@
         }
 
         function shareProductFromFavorites(favoriteIndex) {
+            console.log('shareProductFromFavorites вызвана', favoriteIndex);
             incrementLocalCounter('shareClicks');
             
             const favorite = favorites[favoriteIndex];
@@ -1558,17 +1519,36 @@
             // Вместо этого создаем специальную команду для избранного
             const shareUrl = `https://t.me/${BOT_USERNAME}?start=share_${sectionHash}_${categoryHash}_${modelHash}_${submodelHash}_0`;
             
-            sendAnalyticsEvent('share_click_favorite', {
-                product_id: generateProductId(product),
-                product_color: product.color,
-                share_url: shareUrl
-            });
-            
             if (tg) {
                 tg.openTelegramLink(shareUrl);
             } else {
                 const message = `Чтобы поделиться товаром, перейдите по ссылке:\n\n${shareUrl}\n\nИли скопируйте команду для бота:\n\n/share ${sectionHash} ${categoryHash} ${modelHash} ${submodelHash} 0`;
                 alert(message);
+            }
+        }
+
+        function contactAboutSpecificProduct(productIndex) {
+            console.log('contactAboutSpecificProduct вызвана', productIndex);
+            incrementLocalCounter('detailsClicks');
+            
+            const product = currentProducts[productIndex];
+            const navigation = getCurrentNavigation();
+            
+            const productInfo = [
+                navigation.section?.name,
+                navigation.category?.name,
+                navigation.model?.name,
+                navigation.submodel?.name,
+                product?.color,
+                product?.price && product.price !== 'Цена не указана' ? product.price : ''
+            ].filter(Boolean).join(' → ');
+
+            const message = `Здравствуйте! Интересует товар: ${productInfo}. Подскажите подробности.`;
+            
+            if (tg) {
+                tg.openTelegramLink(`https://t.me/SkidkaService01?text=${encodeURIComponent(message)}`);
+            } else {
+                window.open(`https://t.me/SkidkaService01?text=${encodeURIComponent(message)}`, '_blank');
             }
         }
 
@@ -1946,13 +1926,7 @@
 
             // Увеличиваем счетчик просмотров товаров
             incrementLocalCounter('productViews');
-            sendAnalyticsEvent('products_view', {
-                section_id: sectionId,
-                category_id: categoryId,
-                model_id: modelId,
-                submodel_id: submodelId,
-                products_count: currentProducts.length
-            });
+            console.log('Увеличили productViews:', analyticsData.productViews);
 
             renderAllProducts();
             updateBackButton();
@@ -2381,35 +2355,6 @@
             scheduleFeatherReplace();
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function contactAboutSpecificProduct(productIndex) {
-            incrementLocalCounter('detailsClicks');
-            
-            const product = currentProducts[productIndex];
-            const navigation = getCurrentNavigation();
-            
-            const productInfo = [
-                navigation.section?.name,
-                navigation.category?.name,
-                navigation.model?.name,
-                navigation.submodel?.name,
-                product?.color,
-                product?.price && product.price !== 'Цена не указана' ? product.price : ''
-            ].filter(Boolean).join(' → ');
-
-            const message = `Здравствуйте! Интересует товар: ${productInfo}. Подскажите подробности.`;
-            
-            sendAnalyticsEvent('details_click', {
-                product_id: generateProductId(product),
-                product_info: productInfo
-            });
-            
-            if (tg) {
-                tg.openTelegramLink(`https://t.me/SkidkaService01?text=${encodeURIComponent(message)}`);
-            } else {
-                window.open(`https://t.me/SkidkaService01?text=${encodeURIComponent(message)}`, '_blank');
-            }
         }
 
         // ========== УПРАВЛЕНИЕ НАВИГАЦИЕЙ ==========
