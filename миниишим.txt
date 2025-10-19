@@ -806,10 +806,8 @@
                     alert('Статистика успешно сброшена!');
                 }
                 
-                // Обновляем отображение аналитики, если она открыта
-                if (document.querySelector('.analytics-panel')) {
-                    showAnalytics();
-                }
+                // Обновляем отображение аналитики
+                showAnalytics();
             }
         }
 
