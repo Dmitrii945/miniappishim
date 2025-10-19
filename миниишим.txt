@@ -477,6 +477,65 @@
             transform: translateY(-1px);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+
+        /* Стили для аналитики */
+        .analytics-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .analytics-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1F2937;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .analytics-card {
+            background: #F9FAFB;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .analytics-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3B82F6;
+        }
+
+        .analytics-label {
+            font-size: 0.875rem;
+            color: #6B7280;
+            margin-top: 4px;
+        }
+
+        .reset-button {
+            background-color: #EF4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .reset-button:hover {
+            background-color: #DC2626;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -553,6 +612,15 @@
                             </div>
                         </div>
 
+                        <!-- Аналитика -->
+                        <div class="menu-item" onclick="showAnalytics(); closeSideMenu();">
+                            <i data-feather="bar-chart-2"></i>
+                            <div>
+                                <div class="font-medium">Аналитика</div>
+                                <div class="text-sm text-gray-600">Статистика действий</div>
+                            </div>
+                        </div>
+
                         <div class="menu-divider"></div>
                         
                         <!-- Контакты -->
@@ -623,6 +691,7 @@
         // Конфигурация
         const tg = window.Telegram?.WebApp;
         const API_BASE = 'https://dmitrii2613.pythonanywhere.com/api';
+        const ANALYTICS_API_BASE = 'https://dmitrii2613.pythonanywhere.com/api';
         const BOT_USERNAME = 'SSERVICE72_bot';
         const API_TIMEOUT = 30000;
         let debugMode = false;
@@ -635,6 +704,19 @@
         let lastAction = null;
         let deferredPrompt = null;
         let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+        // Статистика и аналитика
+        let analyticsData = JSON.parse(localStorage.getItem('analytics')) || {
+            shareClicks: 0,
+            detailsClicks: 0,
+            phoneClicks: 0,
+            taxiClicks: 0,
+            gisClicks: 0,
+            telegramClicks: 0,
+            favoriteAdds: 0,
+            productViews: 0,
+            lastReset: Date.now()
+        };
 
         // Контактная информация
         const CONTACT_INFO = {
@@ -661,6 +743,150 @@
             pageTitle: document.getElementById('pageTitle'),
             installButton: document.getElementById('installButton')
         };
+
+        // ========== АНАЛИТИКА И СТАТИСТИКА ==========
+
+        // Функция для отправки статистики на сервер
+        async function sendAnalyticsEvent(eventType, eventData = {}) {
+            try {
+                // Локальное сохранение статистики
+                incrementLocalCounter(eventType);
+                
+                // Отправка на сервер
+                const response = await fetch(`${ANALYTICS_API_BASE}/analytics/event`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        event_type: eventType,
+                        event_data: eventData,
+                        timestamp: new Date().toISOString(),
+                        user_agent: navigator.userAgent,
+                        platform: tg ? 'telegram' : 'web'
+                    })
+                });
+
+                if (!response.ok) {
+                    console.warn('Не удалось отправить аналитику на сервер');
+                }
+            } catch (error) {
+                console.warn('Ошибка отправки аналитики:', error);
+                // Продолжаем работу даже при ошибке аналитики
+            }
+        }
+
+        // Функция для увеличения локальных счетчиков
+        function incrementLocalCounter(counterName) {
+            if (analyticsData.hasOwnProperty(counterName)) {
+                analyticsData[counterName]++;
+                localStorage.setItem('analytics', JSON.stringify(analyticsData));
+            }
+        }
+
+        // Функция для сброса статистики
+        function resetAnalytics() {
+            if (confirm('Вы уверены, что хотите сбросить всю статистику? Это действие нельзя отменить.')) {
+                analyticsData = {
+                    shareClicks: 0,
+                    detailsClicks: 0,
+                    phoneClicks: 0,
+                    taxiClicks: 0,
+                    gisClicks: 0,
+                    telegramClicks: 0,
+                    favoriteAdds: 0,
+                    productViews: 0,
+                    lastReset: Date.now()
+                };
+                localStorage.setItem('analytics', JSON.stringify(analyticsData));
+                
+                if (tg) {
+                    tg.showAlert('Статистика успешно сброшена!');
+                } else {
+                    alert('Статистика успешно сброшена!');
+                }
+                
+                // Обновляем отображение аналитики, если она открыта
+                if (document.querySelector('.analytics-panel')) {
+                    showAnalytics();
+                }
+            }
+        }
+
+        // Функция для отображения аналитики
+        function showAnalytics() {
+            lastAction = { type: 'showAnalytics' };
+            
+            navigationStack = [];
+            updateBreadcrumbs([{ name: 'Аналитика', action: 'showAnalytics' }]);
+            elements.pageTitle.textContent = 'Аналитика';
+            
+            const totalClicks = analyticsData.shareClicks + analyticsData.detailsClicks + analyticsData.phoneClicks;
+            const lastResetDate = new Date(analyticsData.lastReset).toLocaleDateString('ru-RU');
+            
+            let html = `
+                <div class="analytics-panel">
+                    <h2 class="analytics-title">Статистика действий</h2>
+                    
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <div class="analytics-value">${analyticsData.shareClicks}</div>
+                            <div class="analytics-label">Поделиться</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-value">${analyticsData.detailsClicks}</div>
+                            <div class="analytics-label">Подробнее</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-value">${analyticsData.phoneClicks}</div>
+                            <div class="analytics-label">Телефон</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-value">${analyticsData.taxiClicks}</div>
+                            <div class="analytics-label">Такси</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-value">${analyticsData.gisClicks}</div>
+                            <div class="analytics-label">2GIS</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-value">${analyticsData.telegramClicks}</div>
+                            <div class="analytics-label">Telegram</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-value">${analyticsData.favoriteAdds}</div>
+                            <div class="analytics-label">В избранное</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-value">${analyticsData.productViews}</div>
+                            <div class="analytics-label">Просмотры</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4 p-3 bg-blue-50 rounded-lg">
+                        <p class="text-sm text-blue-700">
+                            <i data-feather="info" class="w-4 h-4 inline mr-1"></i>
+                            Всего кликов: <strong>${totalClicks}</strong><br>
+                            Последний сброс: <strong>${lastResetDate}</strong>
+                        </p>
+                    </div>
+                    
+                    <button onclick="resetAnalytics()" class="reset-button">
+                        <i data-feather="refresh-cw" class="w-4 h-4 mr-2"></i>
+                        Сбросить статистику
+                    </button>
+                </div>
+                
+                <button onclick="loadSections()" class="back-button">
+                    <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                    Назад в каталог
+                </button>
+            `;
+            
+            elements.content.innerHTML = html;
+            scheduleFeatherReplace();
+            updateBackButton();
+        }
 
         // ========== УТИЛИТЫ ==========
 
@@ -755,15 +981,21 @@
 
         // ФУНКЦИИ ДЛЯ КНОПОК ТЕЛЕФОНА И 2GIS
         function makePhoneCall() {
+            incrementLocalCounter('phoneClicks');
+            sendAnalyticsEvent('phone_click', { phone_number: CONTACT_INFO.phone });
+            
             const phoneNumber = CONTACT_INFO.phone;
             if (tg) {
                 tg.showAlert(`Телефон: ${phoneNumber}\n\nСкопируйте номер и позвоните нам!`);
             } else {
-                alert(`Телефон: ${phoneNumber}\n\nСкопируйте номер и позбоните нам!`);
+                alert(`Телефон: ${phoneNumber}\n\nСкопируйте номер и позвоните нам!`);
             }
         }
 
         function open2GIS() {
+            incrementLocalCounter('gisClicks');
+            sendAnalyticsEvent('gis_click', { gis_url: CONTACT_INFO.gisUrl });
+            
             if (tg) {
                 tg.openLink(CONTACT_INFO.gisUrl);
             } else {
@@ -772,6 +1004,9 @@
         }
 
         function openTelegramChannel() {
+            incrementLocalCounter('telegramClicks');
+            sendAnalyticsEvent('telegram_channel_click', { channel_url: CONTACT_INFO.telegramChannel });
+            
             if (tg) {
                 tg.openLink(CONTACT_INFO.telegramChannel);
             } else {
@@ -781,6 +1016,9 @@
 
         // ФУНКЦИИ ДЛЯ ВЫЗОВА ТАКСИ
         function callTaxi() {
+            incrementLocalCounter('taxiClicks');
+            sendAnalyticsEvent('taxi_menu_open');
+            
             const address = encodeURIComponent(CONTACT_INFO.address);
             const lat = CONTACT_INFO.coordinates.lat;
             const lon = CONTACT_INFO.coordinates.lon;
@@ -824,6 +1062,8 @@
         }
 
         function openYandexTaxi() {
+            sendAnalyticsEvent('yandex_taxi_click');
+            
             const lat = CONTACT_INFO.coordinates.lat;
             const lon = CONTACT_INFO.coordinates.lon;
             const address = encodeURIComponent(CONTACT_INFO.address);
@@ -839,6 +1079,8 @@
         }
 
         function openUber() {
+            sendAnalyticsEvent('uber_taxi_click');
+            
             const lat = CONTACT_INFO.coordinates.lat;
             const lon = CONTACT_INFO.coordinates.lon;
             const address = encodeURIComponent(CONTACT_INFO.address);
@@ -863,6 +1105,7 @@
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
                         console.log('Пользователь принял установку');
+                        sendAnalyticsEvent('pwa_install_accepted');
                         if (tg) {
                             tg.showAlert('Приложение успешно добавлено на главный экран!');
                         } else {
@@ -870,6 +1113,7 @@
                         }
                     } else {
                         console.log('Пользователь отклонил установку');
+                        sendAnalyticsEvent('pwa_install_declined');
                     }
                     
                     // Сбрасываем deferredPrompt после использования
@@ -975,6 +1219,13 @@
                 }
             } else {
                 // Добавляем в избранное
+                incrementLocalCounter('favoriteAdds');
+                sendAnalyticsEvent('favorite_add', { 
+                    product_id: productId,
+                    product_color: product.color,
+                    product_price: product.price
+                });
+                
                 const navigation = getCurrentNavigation();
                 favorites.push({
                     id: productId,
@@ -1204,6 +1455,8 @@
         }
 
         function contactAboutSpecificProductFromFavorites(favoriteIndex) {
+            incrementLocalCounter('detailsClicks');
+            
             const favorite = favorites[favoriteIndex];
             const product = favorite.product;
             const navigation = favorite.navigation;
@@ -1219,6 +1472,11 @@
 
             const message = `Здравствуйте! Интересует товар из избранного: ${productInfo}. Подскажите подробности.`;
             
+            sendAnalyticsEvent('details_click_favorite', {
+                product_id: generateProductId(product),
+                product_info: productInfo
+            });
+            
             if (tg) {
                 tg.openTelegramLink(`https://t.me/SkidkaService01?text=${encodeURIComponent(message)}`);
             } else {
@@ -1228,6 +1486,8 @@
 
         // ФУНКЦИЯ ДЛЯ ПОДЕЛИТЬСЯ ТОВАРОМ
         function shareProduct(productIndex) {
+            incrementLocalCounter('shareClicks');
+            
             const product = currentProducts[productIndex];
             const navigation = getCurrentNavigation();
             
@@ -1246,6 +1506,12 @@
             
             // Создаем ссылку на бота с командой /share
             const shareUrl = `https://t.me/${BOT_USERNAME}?start=share_${sectionHash}_${categoryHash}_${modelHash}_${submodelHash}_${productIndex}`;
+            
+            sendAnalyticsEvent('share_click', {
+                product_id: generateProductId(product),
+                product_color: product.color,
+                share_url: shareUrl
+            });
             
             if (tg) {
                 // В Telegram WebApp используем native share
@@ -1271,6 +1537,8 @@
         }
 
         function shareProductFromFavorites(favoriteIndex) {
+            incrementLocalCounter('shareClicks');
+            
             const favorite = favorites[favoriteIndex];
             const product = favorite.product;
             const navigation = favorite.navigation;
@@ -1291,6 +1559,12 @@
             // Находим индекс товара в текущих продуктах (для избранного это сложнее)
             // Вместо этого создаем специальную команду для избранного
             const shareUrl = `https://t.me/${BOT_USERNAME}?start=share_${sectionHash}_${categoryHash}_${modelHash}_${submodelHash}_0`;
+            
+            sendAnalyticsEvent('share_click_favorite', {
+                product_id: generateProductId(product),
+                product_color: product.color,
+                share_url: shareUrl
+            });
             
             if (tg) {
                 tg.openTelegramLink(shareUrl);
@@ -1672,6 +1946,16 @@
                 return;
             }
 
+            // Увеличиваем счетчик просмотров товаров
+            incrementLocalCounter('productViews');
+            sendAnalyticsEvent('products_view', {
+                section_id: sectionId,
+                category_id: categoryId,
+                model_id: modelId,
+                submodel_id: submodelId,
+                products_count: currentProducts.length
+            });
+
             renderAllProducts();
             updateBackButton();
         }
@@ -1716,6 +2000,23 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-sm text-gray-500">${favorites.length} товаров</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Добавляем кнопку аналитики в главное меню
+            html += `
+                <div class="category-card fade-in" onclick="showAnalytics()">
+                    <div class="p-4">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <i data-feather="bar-chart-2" class="w-5 h-5 mr-3 text-blue-500"></i>
+                                <h3 class="font-semibold text-lg tg-theme-text text-contrast">Аналитика</h3>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">Статистика</span>
                             </div>
                         </div>
                     </div>
@@ -2085,6 +2386,8 @@
         }
 
         function contactAboutSpecificProduct(productIndex) {
+            incrementLocalCounter('detailsClicks');
+            
             const product = currentProducts[productIndex];
             const navigation = getCurrentNavigation();
             
@@ -2098,6 +2401,11 @@
             ].filter(Boolean).join(' → ');
 
             const message = `Здравствуйте! Интересует товар: ${productInfo}. Подскажите подробности.`;
+            
+            sendAnalyticsEvent('details_click', {
+                product_id: generateProductId(product),
+                product_info: productInfo
+            });
             
             if (tg) {
                 tg.openTelegramLink(`https://t.me/SkidkaService01?text=${encodeURIComponent(message)}`);
@@ -2433,6 +2741,8 @@
         window.retryLastAction = retryLastAction;
         window.handleImageError = handleImageError;
         window.handleImageLoad = handleImageLoad;
+        window.showAnalytics = showAnalytics;
+        window.resetAnalytics = resetAnalytics;
     </script>
 </body>
 </html>
