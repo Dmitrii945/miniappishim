@@ -1,0 +1,2438 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>СКИДКА СЕРВИС Каталог</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --tg-theme-bg-color: #ffffff;
+            --tg-theme-text-color: #000000;
+            --tg-theme-hint-color: #999999;
+            --tg-theme-secondary-bg-color: #f4f4f5;
+            --tg-theme-button-color: #3B82F6;
+            --tg-theme-button-text-color: #ffffff;
+        }
+        
+        .tg-theme-button {
+            background-color: var(--tg-theme-button-color, #3B82F6);
+            color: var(--tg-theme-button-text-color, #ffffff);
+        }
+        
+        .tg-theme-text {
+            color: var(--tg-theme-text-color, #000000) !important;
+        }
+        
+        .tg-theme-hint {
+            color: var(--tg-theme-hint-color, #999999);
+        }
+        
+        .tg-theme-secondary-bg {
+            background-color: var(--tg-theme-secondary-bg-color, #f4f4f5);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background-color: #f3f4f6;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .external-link {
+            color: #3B82F6;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        
+        .price-badge {
+            background-color: #10B981;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .image-loading {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .breadcrumb-item {
+            cursor: pointer;
+            color: #3B82F6 !important;
+            transition: color 0.2s;
+        }
+        
+        .breadcrumb-item:hover {
+            color: #1D4ED8 !important;
+            text-decoration: underline;
+        }
+        
+        .breadcrumb-separator {
+            margin: 0 8px;
+            color: #6B7280;
+        }
+        
+        .product-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .category-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .category-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .retry-button {
+            background-color: #3B82F6;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .retry-button:hover {
+            background-color: #2563EB;
+        }
+
+        /* Стили для кнопок под фото */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .action-button {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: white !important;
+        }
+        
+        .action-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .phone-button {
+            background-color: #10B981;
+            color: white;
+        }
+        
+        .phone-button:hover {
+            background-color: #059669;
+        }
+        
+        .gis-button {
+            background-color: #F59E0B;
+            color: white;
+        }
+        
+        .gis-button:hover {
+            background-color: #D97706;
+        }
+
+        .taxi-button {
+            background-color: #8B5CF6;
+            color: white;
+        }
+        
+        .taxi-button:hover {
+            background-color: #7C3AED;
+        }
+
+        .share-button {
+            background-color: #EC4899;
+            color: white;
+        }
+        
+        .share-button:hover {
+            background-color: #DB2777;
+        }
+        
+        .back-button {
+            background-color: #6B7280;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            width: 100%;
+            margin-top: 16px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .back-button:hover {
+            background-color: #4B5563;
+            transform: translateY(-1px);
+        }
+
+        .clickable-card {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .clickable-card:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Исправляем цвета текста для всех элементов */
+        body {
+            color: #000000;
+            background-color: #f9fafb;
+        }
+
+        header {
+            background-color: white;
+            color: #000000;
+        }
+
+        /* Явно задаем цвета для всех текстовых элементов */
+        h1, h2, h3, h4, h5, h6, p, span, div {
+            color: #000000;
+        }
+
+        /* Убедимся, что все кнопки имеют читаемый текст */
+        button {
+            color: inherit;
+        }
+
+        /* Улучшаем видимость иконок */
+        [data-feather] {
+            color: inherit;
+        }
+
+        /* Гарантируем контрастность для важных элементов */
+        .text-contrast {
+            color: #000000 !important;
+        }
+
+        .bg-contrast {
+            background-color: #ffffff !important;
+        }
+
+        /* Стили для зеленой кнопки меню */
+        .menu-button {
+            background-color: #10B981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-button:hover {
+            background-color: #059669;
+            transform: scale(1.05);
+        }
+
+        /* Стили для кнопки добавления на главный экран */
+        .install-button {
+            background-color: #3B82F6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .install-button:hover {
+            background-color: #2563EB;
+            transform: scale(1.05);
+        }
+
+        /* Стили для пунктов меню */
+        .menu-item {
+            padding: 12px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #1F2937;
+        }
+
+        .menu-item:hover {
+            background-color: #F3F4F6;
+            transform: translateX(4px);
+        }
+
+        .menu-item i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .menu-divider {
+            height: 1px;
+            background-color: #E5E7EB;
+            margin: 8px 0;
+        }
+
+        /* Стили для кнопок такси */
+        .taxi-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .taxi-service-button {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: white !important;
+        }
+        
+        .taxi-service-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .yandex-taxi {
+            background-color: #FFCC00;
+            color: #000 !important;
+        }
+        
+        .yandex-taxi:hover {
+            background-color: #E6B800;
+        }
+        
+        .uber-taxi {
+            background-color: #000000;
+            color: white !important;
+        }
+        
+        .uber-taxi:hover {
+            background-color: #333333;
+        }
+
+        /* Стили для заголовка с подзаголовком */
+        .header-title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .main-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .sub-title {
+            font-size: 1.125rem;
+            color: #6B7280;
+            font-weight: 400;
+            line-height: 1;
+            margin-top: 2px;
+        }
+
+        /* Стили для кнопки избранного */
+        .favorite-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .favorite-button:hover {
+            background-color: #f9fafb;
+            transform: scale(1.1);
+        }
+
+        .favorite-button.active {
+            background-color: #EF4444;
+            border-color: #EF4444;
+        }
+
+        .favorite-button.active i {
+            color: white;
+        }
+
+        .favorite-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #374151;
+            z-index: 10;
+        }
+
+        /* Стили для двухколоночного расположения кнопок */
+        .two-column-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .large-button {
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: white !important;
+        }
+
+        .large-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div id="app" class="max-w-md mx-auto">
+        <!-- Header -->
+        <header class="bg-white shadow-sm p-4 sticky top-0 z-10">
+            <div class="flex justify-between items-center">
+                <button id="toggleMenu" class="menu-button">
+                    <i data-feather="menu"></i>
+                </button>
+                <div class="header-title">
+                    <h1 class="main-title tg-theme-text text-contrast" id="pageTitle">Каталог товаров</h1>
+                    <div class="sub-title">Скидка Сервис</div>
+                </div>
+                <button id="installButton" class="install-button" title="Добавить на главный экран">
+                    <i data-feather="plus-square"></i>
+                </button>
+            </div>
+            
+            <!-- Breadcrumbs -->
+            <div id="breadcrumbs" class="flex items-center text-sm mt-2 overflow-x-auto whitespace-nowrap"></div>
+        </header>
+
+        <!-- Loading -->
+        <div id="loading" class="hidden p-8 text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+            <p class="mt-4 tg-theme-hint text-contrast">Загрузка...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden p-8 text-center">
+            <i data-feather="package" class="w-16 h-16 mx-auto tg-theme-hint mb-4 text-contrast"></i>
+            <p class="tg-theme-hint mb-4 text-contrast" id="emptyMessage">Товары не найдены</p>
+            <button onclick="loadSections()" class="mt-4 py-2 px-4 tg-theme-button rounded-lg">
+                Вернуться в главную
+            </button>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="hidden p-8 text-center">
+            <i data-feather="alert-triangle" class="w-16 h-16 mx-auto text-red-500 mb-4"></i>
+            <p class="text-red-600 mb-4 text-contrast" id="errorMessage">Произошла ошибка</p>
+            <button onclick="retryLastAction()" class="mt-4 py-2 px-4 bg-blue-500 text-white rounded-lg">
+                Попробовать снова
+            </button>
+            <button onclick="loadSections()" class="mt-2 py-2 px-4 bg-gray-500 text-white rounded-lg">
+                Вернуться в главную
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <main id="content" class="p-4 fade-in">
+            <!-- Контент загружается динамически -->
+        </main>
+
+        <!-- Side Menu -->
+        <div id="sideMenu" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50">
+            <div class="absolute right-0 top-0 h-full w-80 bg-white transform translate-x-full transition-transform duration-300">
+                <div class="p-4">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-semibold text-contrast">Меню</h2>
+                        <button id="closeMenu" class="p-2 rounded-lg hover:bg-gray-100">
+                            <i data-feather="x"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-1">
+                        <!-- Избранное -->
+                        <div class="menu-item" onclick="loadFavorites(); closeSideMenu();">
+                            <i data-feather="heart"></i>
+                            <div>
+                                <div class="font-medium">Избранное</div>
+                                <div class="text-sm text-gray-600">Сохраненные товары</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-divider"></div>
+                        
+                        <!-- Контакты -->
+                        <div class="menu-item" onclick="makePhoneCall(); closeSideMenu();">
+                            <i data-feather="phone"></i>
+                            <div>
+                                <div class="font-medium">Телефон</div>
+                                <div class="text-sm text-gray-600">${CONTACT_INFO.phone}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="menu-item" onclick="open2GIS(); closeSideMenu();">
+                            <i data-feather="map-pin"></i>
+                            <div>
+                                <div class="font-medium">2GIS</div>
+                                <div class="text-sm text-gray-600">Наш адрес на карте</div>
+                            </div>
+                        </div>
+
+                        <!-- Вызов такси -->
+                        <div class="menu-item" onclick="openTaxiMenu(); closeSideMenu();">
+                            <i data-feather="car"></i>
+                            <div>
+                                <div class="font-medium">Вызвать такси</div>
+                                <div class="text-sm text-gray-600">До нашего магазина</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-divider"></div>
+
+                        <!-- Телеграмм канал -->
+                        <div class="menu-item" onclick="openTelegramChannel(); closeSideMenu();">
+                            <i data-feather="send"></i>
+                            <div>
+                                <div class="font-medium">Телеграмм канал</div>
+                                <div class="text-sm text-gray-600">Новости и акции</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-divider"></div>
+
+                        <!-- Добавить на главный экран -->
+                        <div class="menu-item" onclick="installPWA(); closeSideMenu();">
+                            <i data-feather="plus-square"></i>
+                            <div>
+                                <div class="font-medium">Добавить на главный экран</div>
+                                <div class="text-sm text-gray-600">Быстрый доступ к приложению</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-divider"></div>
+
+                        <!-- МЕНЮ -->
+                        <div class="menu-item" onclick="loadSections(); closeSideMenu();">
+                            <i data-feather="home"></i>
+                            <div>
+                                <div class="font-medium">МЕНЮ</div>
+                                <div class="text-sm text-gray-600">Вернуться в каталог</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Конфигурация
+        const tg = window.Telegram?.WebApp;
+        const API_BASE = 'https://dmitrii2613.pythonanywhere.com/api';
+        const BOT_USERNAME = 'SSERVICE72_bot';
+        const API_TIMEOUT = 30000;
+        let debugMode = false;
+        let featherTimeout;
+
+        // Состояние приложения
+        let navigationStack = [];
+        let currentProducts = [];
+        let catalogData = null;
+        let lastAction = null;
+        let deferredPrompt = null;
+        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+        // Контактная информация
+        const CONTACT_INFO = {
+            phone: "60-01-60",
+            gisUrl: "https://2gis.ru/tyumen/firm/70000001048108193/65.610084%2C57.15728?m=65.610539%2C57.157207%2F19.57",
+            telegramChannel: "https://t.me/skidkaservis",
+            address: "г. Тюмень, ул. Барабинская 3а ст4",
+            coordinates: {
+                lat: 57.15728,
+                lon: 65.610084
+            }
+        };
+
+        // DOM элементы
+        const elements = {
+            content: document.getElementById('content'),
+            breadcrumbs: document.getElementById('breadcrumbs'),
+            loading: document.getElementById('loading'),
+            emptyState: document.getElementById('emptyState'),
+            emptyMessage: document.getElementById('emptyMessage'),
+            errorState: document.getElementById('errorState'),
+            errorMessage: document.getElementById('errorMessage'),
+            sideMenu: document.getElementById('sideMenu'),
+            pageTitle: document.getElementById('pageTitle'),
+            installButton: document.getElementById('installButton')
+        };
+
+        // ========== УТИЛИТЫ ==========
+
+        function fixMobileColors() {
+            if (!window.Telegram?.WebApp) {
+                document.documentElement.style.setProperty('--tg-theme-bg-color', '#ffffff');
+                document.documentElement.style.setProperty('--tg-theme-text-color', '#000000');
+                document.documentElement.style.setProperty('--tg-theme-hint-color', '#666666');
+                document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', '#f3f4f6');
+                document.documentElement.style.setProperty('--tg-theme-button-color', '#3B82F6');
+                document.documentElement.style.setProperty('--tg-theme-button-text-color', '#ffffff');
+            }
+        }
+
+        function escapeHtml(unsafe) {
+            if (unsafe == null) return '';
+            return String(unsafe)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function safeGet(obj, path, defaultValue = '') {
+            if (!obj) return defaultValue;
+            return path.split('.').reduce((acc, key) => 
+                acc && acc[key] !== undefined && acc[key] !== null ? acc[key] : defaultValue, obj);
+        }
+
+        function safeString(value, defaultValue = '') {
+            if (value == null) return defaultValue;
+            return String(value);
+        }
+
+        function safeNumber(value, defaultValue = 0) {
+            if (value == null) return defaultValue;
+            const num = Number(value);
+            return isNaN(num) ? defaultValue : num;
+        }
+
+        function scheduleFeatherReplace() {
+            clearTimeout(featherTimeout);
+            featherTimeout = setTimeout(() => {
+                try {
+                    feather.replace();
+                } catch (error) {
+                    console.log('Ошибка feather.replace:', error);
+                }
+            }, 100);
+        }
+
+        function extractNumericPrice(priceStr) {
+            if (!priceStr || typeof priceStr !== 'string') {
+                return Infinity;
+            }
+
+            try {
+                let cleanStr = priceStr.trim();
+                if (!cleanStr) return Infinity;
+
+                cleanStr = cleanStr.replace(/[^\d,.]/g, '');
+
+                if (!cleanStr) return Infinity;
+
+                cleanStr = cleanStr.replace(',', '.');
+
+                const parts = cleanStr.split('.');
+                if (parts.length > 2) {
+                    cleanStr = parts[0] + '.' + parts.slice(1).join('');
+                }
+
+                const result = parseFloat(cleanStr);
+                return isNaN(result) ? Infinity : result;
+            } catch (error) {
+                console.log(`Ошибка преобразования цены '${priceStr}':`, error);
+                return Infinity;
+            }
+        }
+
+        function formatPriceText(price) {
+            if (price === null || price === Infinity || price === 0) return "";
+            return ` от ${Math.round(price)} р.`;
+        }
+
+        function formatPriceForBadge(price) {
+            if (!price || price === 'Цена не указана') return '';
+            const numericPrice = extractNumericPrice(price);
+            if (numericPrice === Infinity) return '';
+            return `${Math.round(numericPrice)} р.`;
+        }
+
+        // ФУНКЦИИ ДЛЯ КНОПОК ТЕЛЕФОНА И 2GIS
+        function makePhoneCall() {
+            const phoneNumber = CONTACT_INFO.phone;
+            if (tg) {
+                tg.showAlert(`Телефон: ${phoneNumber}\n\nСкопируйте номер и позвоните нам!`);
+            } else {
+                alert(`Телефон: ${phoneNumber}\n\nСкопируйте номер и позбоните нам!`);
+            }
+        }
+
+        function open2GIS() {
+            if (tg) {
+                tg.openLink(CONTACT_INFO.gisUrl);
+            } else {
+                window.open(CONTACT_INFO.gisUrl, '_blank');
+            }
+        }
+
+        function openTelegramChannel() {
+            if (tg) {
+                tg.openLink(CONTACT_INFO.telegramChannel);
+            } else {
+                window.open(CONTACT_INFO.telegramChannel, '_blank');
+            }
+        }
+
+        // ФУНКЦИИ ДЛЯ ВЫЗОВА ТАКСИ
+        function callTaxi() {
+            const address = encodeURIComponent(CONTACT_INFO.address);
+            const lat = CONTACT_INFO.coordinates.lat;
+            const lon = CONTACT_INFO.coordinates.lon;
+            
+            let html = `
+                <div class="bg-white rounded-xl p-4 shadow-lg">
+                    <h3 class="text-lg font-semibold mb-4 text-contrast">Вызвать такси</h3>
+                    <p class="text-gray-600 mb-4 text-contrast">Выберите сервис такси для поездки в наш магазин:</p>
+                    
+                    <div class="taxi-buttons">
+                        <button onclick="openYandexTaxi()" class="taxi-service-button yandex-taxi">
+                            <i data-feather="navigation" class="w-4 h-4"></i>
+                            Яндекс Такси
+                        </button>
+                        <button onclick="openUber()" class="taxi-service-button uber-taxi">
+                            <i data-feather="car" class="w-4 h-4"></i>
+                            Uber
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <p class="text-sm text-blue-700">
+                            <i data-feather="map-pin" class="w-4 h-4 inline mr-1"></i>
+                            Адрес: ${CONTACT_INFO.address}
+                        </p>
+                    </div>
+                    
+                    <button onclick="loadSections()" class="back-button mt-4">
+                        <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                        Назад в каталог
+                    </button>
+                </div>
+            `;
+            
+            elements.content.innerHTML = html;
+            scheduleFeatherReplace();
+        }
+
+        function openTaxiMenu() {
+            callTaxi();
+        }
+
+        function openYandexTaxi() {
+            const lat = CONTACT_INFO.coordinates.lat;
+            const lon = CONTACT_INFO.coordinates.lon;
+            const address = encodeURIComponent(CONTACT_INFO.address);
+            
+            // Ссылка для Яндекс Такси с координатами
+            const yandexTaxiUrl = `https://3.redirect.appmetrica.yandex.com/route?end-lat=${lat}&end-lon=${lon}&end-text=${address}&appmetrica_tracking_id=1178268795219780156`;
+            
+            if (tg) {
+                tg.openLink(yandexTaxiUrl);
+            } else {
+                window.open(yandexTaxiUrl, '_blank');
+            }
+        }
+
+        function openUber() {
+            const lat = CONTACT_INFO.coordinates.lat;
+            const lon = CONTACT_INFO.coordinates.lon;
+            const address = encodeURIComponent(CONTACT_INFO.address);
+            
+            // Ссылка для Uber с координатами
+            const uberUrl = `https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[formatted_address]=${address}&dropoff[latitude]=${lat}&dropoff[longitude]=${lon}`;
+            
+            if (tg) {
+                tg.openLink(uberUrl);
+            } else {
+                window.open(uberUrl, '_blank');
+            }
+        }
+
+        // ФУНКЦИИ ДЛЯ ДОБАВЛЕНИЯ НА ГЛАВНЫЙ ЭКРАН
+        function installPWA() {
+            if (deferredPrompt) {
+                // Показываем запрос на установку
+                deferredPrompt.prompt();
+                
+                // Ждем ответа пользователя
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Пользователь принял установку');
+                        if (tg) {
+                            tg.showAlert('Приложение успешно добавлено на главный экран!');
+                        } else {
+                            alert('Приложение успешно добавлено на главный экран!');
+                        }
+                    } else {
+                        console.log('Пользователь отклонил установку');
+                    }
+                    
+                    // Сбрасываем deferredPrompt после использования
+                    deferredPrompt = null;
+                });
+            } else {
+                // Если deferredPrompt недоступен, показываем инструкции
+                showInstallInstructions();
+            }
+        }
+
+        function showInstallInstructions() {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isAndroid = /Android/.test(navigator.userAgent);
+            
+            let instructions = '';
+            
+            if (isIOS) {
+                instructions = `
+                    <div class="bg-white rounded-xl p-4 shadow-lg">
+                        <h3 class="text-lg font-semibold mb-4 text-contrast">Добавить на главный экран (iOS)</h3>
+                        <div class="space-y-3 text-sm text-gray-700">
+                            <div class="flex items-start gap-3">
+                                <span class="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+                                <span>Нажмите кнопку "Поделиться" <i data-feather="share" class="w-4 h-4 inline"></i> в нижней панели Safari</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+                                <span>Прокрутите меню и выберите "На экран «Домой»"</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+                                <span>Подтвердите добавление, нажав "Добавить" в правом верхнем углу</span>
+                            </div>
+                        </div>
+                        <button onclick="loadSections()" class="back-button mt-4">
+                            <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                            Назад в каталог
+                        </button>
+                    </div>
+                `;
+            } else if (isAndroid) {
+                instructions = `
+                    <div class="bg-white rounded-xl p-4 shadow-lg">
+                        <h3 class="text-lg font-semibold mb-4 text-contrast">Добавить на главный экран (Android)</h3>
+                        <div class="space-y-3 text-sm text-gray-700">
+                            <div class="flex items-start gap-3">
+                                <span class="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+                                <span>Нажмите на меню (три точки) в правом верхнем углу браузера</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+                                <span>Выберите "Добавить на главный экран" или "Установить приложение"</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+                                <span>Подтвердите установку в появившемся диалоговом окне</span>
+                            </div>
+                        </div>
+                        <button onclick="loadSections()" class="back-button mt-4">
+                            <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                            Назад в каталог
+                        </button>
+                    </div>
+                `;
+            } else {
+                instructions = `
+                    <div class="bg-white rounded-xl p-4 shadow-lg">
+                        <h3 class="text-lg font-semibold mb-4 text-contrast">Добавить на главный экран</h3>
+                        <p class="text-gray-600 mb-4 text-contrast">Используйте функцию "Добавить на главный экран" в меню вашего браузера.</p>
+                        <div class="p-3 bg-yellow-50 rounded-lg mb-4">
+                            <p class="text-sm text-yellow-700">
+                                <i data-feather="info" class="w-4 h-4 inline mr-1"></i>
+                                В разных браузерах эта функция может находиться в разных местах меню.
+                            </p>
+                        </div>
+                        <button onclick="loadSections()" class="back-button">
+                            <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                            Назад в каталог
+                        </button>
+                    </div>
+                `;
+            }
+            
+            elements.content.innerHTML = instructions;
+            scheduleFeatherReplace();
+        }
+
+        function showInstallPrompt() {
+            installPWA();
+        }
+
+        // ФУНКЦИИ ДЛЯ ИЗБРАННОГО
+        function toggleFavorite(product, productIndex) {
+            const productId = generateProductId(product);
+            const isFavorite = favorites.some(fav => fav.id === productId);
+            
+            if (isFavorite) {
+                // Удаляем из избранного
+                favorites = favorites.filter(fav => fav.id !== productId);
+                if (tg) {
+                    tg.showAlert('Товар удален из избранного');
+                }
+            } else {
+                // Добавляем в избранное
+                const navigation = getCurrentNavigation();
+                favorites.push({
+                    id: productId,
+                    product: product,
+                    navigation: navigation,
+                    timestamp: Date.now()
+                });
+                if (tg) {
+                    tg.showAlert('Товар добавлен в избранное');
+                }
+            }
+            
+            // Сохраняем в localStorage
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            
+            // Обновляем отображение кнопки
+            updateFavoriteButton(productId, productIndex);
+        }
+
+        function generateProductId(product) {
+            // Создаем уникальный идентификатор на основе данных товара
+            return btoa(encodeURIComponent(
+                `${product.color || ''}-${product.price || ''}-${product.photo_url || ''}`
+            )).substring(0, 20);
+        }
+
+        function updateFavoriteButton(productId, productIndex) {
+            const isFavorite = favorites.some(fav => fav.id === productId);
+            const button = document.querySelector(`[data-product-index="${productIndex}"] .favorite-button`);
+            
+            if (button) {
+                if (isFavorite) {
+                    button.classList.add('active');
+                    button.innerHTML = '<i data-feather="heart"></i>';
+                } else {
+                    button.classList.remove('active');
+                    button.innerHTML = '<i data-feather="heart"></i>';
+                }
+                scheduleFeatherReplace();
+            }
+        }
+
+        function loadFavorites() {
+            lastAction = { type: 'loadFavorites' };
+            
+            navigationStack = [];
+            updateBreadcrumbs([{ name: 'Избранное', action: 'loadFavorites' }]);
+            elements.pageTitle.textContent = 'Избранное';
+            
+            if (!favorites || favorites.length === 0) {
+                showEmptyState('В избранном пока нет товаров');
+                return;
+            }
+
+            renderFavorites();
+            updateBackButton();
+        }
+
+        function renderFavorites() {
+            let html = '<div class="product-list">';
+            
+            html += `
+                <div class="mb-4 p-4 bg-white rounded-xl shadow-sm">
+                    <h2 class="text-lg font-semibold text-contrast">Избранные товары: ${favorites.length}</h2>
+                </div>
+            `;
+
+            favorites.forEach((fav, index) => {
+                const product = fav.product;
+                const navigation = fav.navigation;
+                
+                if (!product) return;
+                
+                const color = safeString(product.color, 'Не указан');
+                const price = product.price ? formatPriceForBadge(product.price) : 'Цена не указана';
+                const description = safeString(product.description);
+                const photoUrl = safeString(product.photo_url);
+                const photoDescription = safeString(product.photo_description);
+                
+                let imageUrl = extractPhotoFilenameFromUrl(photoUrl);
+                const alternativeUrls = getAlternativeImageUrls(photoUrl);
+
+                html += `
+                    <div class="product-card fade-in" data-product-index="${index}">
+                `;
+
+                // Кнопка избранного
+                html += `
+                    <div class="favorite-label">В избранном</div>
+                    <div class="favorite-button active" onclick="toggleFavoriteFromFavorites('${fav.id}')">
+                        <i data-feather="heart"></i>
+                    </div>
+                `;
+
+                if (imageUrl || alternativeUrls.length > 0) {
+                    const finalImageUrl = imageUrl || alternativeUrls[0];
+                    html += `
+                        <img src="${escapeHtml(finalImageUrl)}" alt="${escapeHtml(color)}" 
+                             class="product-image w-full h-48 object-cover"
+                             onerror="handleImageError(this, '${escapeHtml(photoUrl)}', ${JSON.stringify(alternativeUrls).replace(/"/g, '&quot;')})"
+                             onload="handleImageLoad(this)"
+                             loading="lazy"
+                             crossorigin="anonymous"
+                             data-tried-alternative="0">
+                        <div class="w-full h-48 bg-gray-100 flex items-center justify-center hidden image-placeholder">
+                            <div class="text-center text-gray-400">
+                                <i data-feather="image" class="w-12 h-12 mx-auto mb-2"></i>
+                                <div class="text-sm">Не удалось загрузить фото</div>
+                                <div class="text-xs mt-1">ID: ${escapeHtml(photoUrl?.match(/[?&]id=([^&]+)/)?.[1] || 'неизвестен')}</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="w-full h-48 bg-gray-100 flex items-center justify-center">
+                            <div class="text-center text-gray-400">
+                                <i data-feather="package" class="w-12 h-12 mx-auto mb-2"></i>
+                                <div class="text-sm">Фото не доступно</div>
+                                ${photoUrl ? `<div class="text-xs mt-1">ID: ${escapeHtml(photoUrl.match(/[?&]id=([^&]+)/)?.[1] || 'неизвестен')}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += `
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-semibold text-lg text-contrast">${escapeHtml(color)}</h3>
+                                ${price && price !== 'Цена не указана' ? `
+                                    <span class="price-badge">${escapeHtml(price)}</span>
+                                ` : ''}
+                            </div>
+                            
+                            <div class="space-y-2 mb-4">
+                `;
+
+                if (photoDescription) {
+                    html += `<p class="text-gray-700 text-contrast">${escapeHtml(photoDescription)}</p>`;
+                }
+
+                if (description) {
+                    html += `<p class="text-gray-500 text-sm text-contrast">${escapeHtml(description)}</p>`;
+                }
+
+                // Хлебные крошки для навигации
+                if (navigation) {
+                    const breadcrumbs = [];
+                    
+                    if (navigation.section) {
+                        breadcrumbs.push(navigation.section.name);
+                    }
+                    
+                    if (navigation.category) {
+                        breadcrumbs.push(navigation.category.name);
+                    }
+                    
+                    if (navigation.model && navigation.model.name !== "Без модели") {
+                        breadcrumbs.push(navigation.model.name);
+                    }
+                    
+                    if (navigation.submodel && navigation.submodel.name !== "Без подмодели") {
+                        breadcrumbs.push(navigation.submodel.name);
+                    }
+
+                    if (breadcrumbs.length > 0) {
+                        html += `<p class="text-gray-400 text-xs text-contrast">${breadcrumbs.join(' → ')}</p>`;
+                    }
+                }
+
+                html += `</div>`;
+
+                // Кнопки действий для избранного
+                html += `
+                    <div class="two-column-buttons">
+                        <button onclick="makePhoneCall()" class="large-button phone-button">
+                            <i data-feather="phone" class="w-4 h-4"></i>
+                            ${CONTACT_INFO.phone}
+                        </button>
+                        <button onclick="shareProductFromFavorites(${index})" class="large-button share-button">
+                            <i data-feather="share-2" class="w-4 h-4"></i>
+                            Поделиться
+                        </button>
+                    </div>
+                `;
+
+                html += `
+                    <div class="mt-3">
+                        <button onclick="contactAboutSpecificProductFromFavorites(${index})" 
+                                class="w-full py-3 tg-theme-button rounded-lg transition font-medium flex items-center justify-center">
+                            <i data-feather="message-circle" class="w-4 h-4 mr-2"></i>
+                            Узнать подробнее
+                        </button>
+                    </div>
+                `;
+
+                html += `</div></div>`;
+            });
+
+            html += `
+                <button onclick="loadSections()" class="back-button">
+                    <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                    Назад в каталог
+                </button>
+            `;
+
+            html += '</div>';
+            
+            elements.content.innerHTML = html;
+            scheduleFeatherReplace();
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleFavoriteFromFavorites(favoriteId) {
+            favorites = favorites.filter(fav => fav.id !== favoriteId);
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            
+            if (favorites.length === 0) {
+                showEmptyState('В избранном пока нет товаров');
+            } else {
+                renderFavorites();
+            }
+            
+            if (tg) {
+                tg.showAlert('Товар удален из избранного');
+            }
+        }
+
+        function contactAboutSpecificProductFromFavorites(favoriteIndex) {
+            const favorite = favorites[favoriteIndex];
+            const product = favorite.product;
+            const navigation = favorite.navigation;
+            
+            const productInfo = [
+                navigation.section?.name,
+                navigation.category?.name,
+                navigation.model?.name,
+                navigation.submodel?.name,
+                product?.color,
+                product?.price && product.price !== 'Цена не указана' ? product.price : ''
+            ].filter(Boolean).join(' → ');
+
+            const message = `Здравствуйте! Интересует товар из избранного: ${productInfo}. Подскажите подробности.`;
+            
+            if (tg) {
+                tg.openTelegramLink(`https://t.me/SkidkaService01?text=${encodeURIComponent(message)}`);
+            } else {
+                window.open(`https://t.me/SkidkaService01?text=${encodeURIComponent(message)}`, '_blank');
+            }
+        }
+
+        // ФУНКЦИЯ ДЛЯ ПОДЕЛИТЬСЯ ТОВАРОМ
+        function shareProduct(productIndex) {
+            const product = currentProducts[productIndex];
+            const navigation = getCurrentNavigation();
+            
+            if (!product || !navigation.section) {
+                if (tg) {
+                    tg.showAlert('Ошибка: не удалось получить данные товара');
+                }
+                return;
+            }
+
+            // Формируем параметры для команды /share
+            const sectionHash = navigation.section.id;
+            const categoryHash = navigation.category?.id || 'null';
+            const modelHash = navigation.model?.id || 'null';
+            const submodelHash = navigation.submodel?.id || 'null';
+            
+            // Создаем ссылку на бота с командой /share
+            const shareUrl = `https://t.me/${BOT_USERNAME}?start=share_${sectionHash}_${categoryHash}_${modelHash}_${submodelHash}_${productIndex}`;
+            
+            if (tg) {
+                // В Telegram WebApp используем native share
+                tg.openTelegramLink(shareUrl);
+            } else {
+                // В браузере показываем инструкцию
+                const message = `Чтобы поделиться товаром, перейдите по ссылке:\n\n${shareUrl}\n\nИли скопируйте команду для бота:\n\n/share ${sectionHash} ${categoryHash} ${modelHash} ${submodelHash} ${productIndex}`;
+                
+                if (navigator.share) {
+                    // Используем Web Share API если доступен
+                    navigator.share({
+                        title: `Товар: ${product.color || 'Без названия'}`,
+                        text: `Посмотрите этот товар в каталоге Скидка Сервис`,
+                        url: shareUrl
+                    }).catch(() => {
+                        // Fallback если share отменен
+                        alert(message);
+                    });
+                } else {
+                    alert(message);
+                }
+            }
+        }
+
+        function shareProductFromFavorites(favoriteIndex) {
+            const favorite = favorites[favoriteIndex];
+            const product = favorite.product;
+            const navigation = favorite.navigation;
+            
+            if (!product || !navigation.section) {
+                if (tg) {
+                    tg.showAlert('Ошибка: не удалось получить данные товара');
+                }
+                return;
+            }
+
+            // Формируем параметры для команды /share
+            const sectionHash = navigation.section.id;
+            const categoryHash = navigation.category?.id || 'null';
+            const modelHash = navigation.model?.id || 'null';
+            const submodelHash = navigation.submodel?.id || 'null';
+            
+            // Находим индекс товара в текущих продуктах (для избранного это сложнее)
+            // Вместо этого создаем специальную команду для избранного
+            const shareUrl = `https://t.me/${BOT_USERNAME}?start=share_${sectionHash}_${categoryHash}_${modelHash}_${submodelHash}_0`;
+            
+            if (tg) {
+                tg.openTelegramLink(shareUrl);
+            } else {
+                const message = `Чтобы поделиться товаром, перейдите по ссылке:\n\n${shareUrl}\n\nИли скопируйте команду для бота:\n\n/share ${sectionHash} ${categoryHash} ${modelHash} ${submodelHash} 0`;
+                alert(message);
+            }
+        }
+
+        function extractPhotoFilenameFromUrl(url) {
+            try {
+                if (!url || typeof url !== 'string') return null;
+
+                url = url.trim();
+
+                if (url.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp|bmp)(\?.*)?$/i)) {
+                    return url.startsWith('http') ? url : null;
+                }
+
+                if (url.includes('drive.google.com')) {
+                    let fileId = null;
+
+                    if (url.includes('/file/d/')) {
+                        const match = url.match(/\/file\/d\/([^\/]+)/);
+                        if (match && match[1]) {
+                            fileId = match[1];
+                        }
+                    } 
+                    else if (url.includes('uc?export=view&id=')) {
+                        fileId = url.split('uc?export=view&id=')[1];
+                    }
+                    else if (url.includes('id=')) {
+                        fileId = url.split('id=')[1].split('&')[0];
+                    }
+                    else if (url.includes('/open?id=')) {
+                        fileId = url.split('/open?id=')[1];
+                    }
+
+                    if (fileId) {
+                        return `https://drive.google.com/uc?export=download&id=${fileId}`;
+                    }
+                }
+
+                if (url.startsWith('http://') || url.startsWith('https://')) {
+                    return url;
+                }
+
+                return null;
+            } catch (error) {
+                console.log('Ошибка извлечения фото из URL:', error);
+                return null;
+            }
+        }
+
+        function getAlternativeImageUrls(originalUrl) {
+            const urls = [];
+            
+            if (!originalUrl || typeof originalUrl !== 'string') return urls;
+            
+            try {
+                let fileId = null;
+                
+                const match1 = originalUrl.match(/\/file\/d\/([^\/]+)/);
+                if (match1 && match1[1]) {
+                    fileId = match1[1];
+                }
+                
+                if (!fileId) {
+                    const match2 = originalUrl.match(/[?&]id=([^&]+)/);
+                    if (match2 && match2[1]) {
+                        fileId = match2[1];
+                    }
+                }
+                
+                if (!fileId) {
+                    const match3 = originalUrl.match(/\/open\?id=([^&]+)/);
+                    if (match3 && match3[1]) {
+                        fileId = match3[1];
+                    }
+                }
+                
+                if (fileId) {
+                    urls.push(`https://drive.google.com/uc?export=download&id=${fileId}`);
+                    urls.push(`https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`);
+                    urls.push(`https://docs.google.com/uc?id=${fileId}`);
+                    urls.push(`https://lh3.googleusercontent.com/d/${fileId}=w1000`);
+                }
+                
+            } catch (error) {
+                console.log('Ошибка генерации альтернативных URL:', error);
+            }
+            
+            return urls;
+        }
+
+        function handleImageError(imgElement, originalUrl = '', alternativeUrls = []) {
+            const triedAlternative = parseInt(imgElement.dataset.triedAlternative || '0');
+            
+            if (alternativeUrls.length > triedAlternative) {
+                imgElement.dataset.triedAlternative = (triedAlternative + 1).toString();
+                imgElement.src = alternativeUrls[triedAlternative];
+                return;
+            }
+            
+            imgElement.style.display = 'none';
+            const placeholder = imgElement.nextElementSibling;
+            if (placeholder && placeholder.classList.contains('image-placeholder')) {
+                placeholder.style.display = 'flex';
+            }
+            scheduleFeatherReplace();
+        }
+
+        function handleImageLoad(imgElement) {
+            imgElement.style.display = 'block';
+            const placeholder = imgElement.nextElementSibling;
+            if (placeholder && placeholder.classList.contains('image-placeholder')) {
+                placeholder.style.display = 'none';
+            }
+        }
+
+        // ========== ОСНОВНЫЕ ФУНКЦИИ ==========
+
+        function initTelegramApp() {
+            if (tg) {
+                try {
+                    tg.expand();
+                    tg.enableClosingConfirmation();
+                } catch (error) {
+                    console.log('Ошибка инициализации Telegram Web App:', error);
+                }
+            }
+        }
+
+        // ========== API ФУНКЦИИ ==========
+
+        async function apiFetch(endpoint) {
+            const url = `${API_BASE}${endpoint}`;
+            
+            showLoading();
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+                controller.abort();
+            }, API_TIMEOUT);
+            
+            try {
+                const response = await fetch(url, { 
+                    signal: controller.signal,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data) {
+                    throw new Error('Пустой ответ от сервера');
+                }
+                
+                hideLoading();
+                return data;
+                
+            } catch (error) {
+                clearTimeout(timeoutId);
+                let errorMessage = error.message;
+                
+                if (error.name === 'AbortError') {
+                    errorMessage = `Таймаут запроса (${API_TIMEOUT/1000} секунд). Сервер не отвечает.`;
+                } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    errorMessage = 'Ошибка сети. Проверьте подключение к интернету.';
+                }
+                
+                hideLoading();
+                showError(`Ошибка загрузки: ${errorMessage}`);
+                return { error: errorMessage };
+            }
+        }
+
+        // ========== ИНТЕЛЛЕКТУАЛЬНАЯ НАВИГАЦИЯ ==========
+
+        async function loadSections() {
+            lastAction = { type: 'loadSections' };
+            
+            try {
+                navigationStack = [];
+                updateBreadcrumbs([{ name: 'МЕНЮ', action: 'loadSections' }]);
+                elements.pageTitle.textContent = 'Каталог товаров';
+                
+                const data = await apiFetch('/sections');
+                
+                if (data?.error) {
+                    showEmptyState('Ошибка загрузки разделов');
+                    return;
+                }
+                
+                if (!data || !Array.isArray(data.sections) || data.sections.length === 0) {
+                    showEmptyState('Разделы не найдены');
+                    return;
+                }
+
+                renderSections(data.sections);
+                updateBackButton();
+            } catch (error) {
+                showError('Не удалось загрузить разделы');
+            }
+        }
+
+        async function loadCategories(sectionId, sectionName) {
+            lastAction = { type: 'loadCategories', sectionId, sectionName };
+            
+            try {
+                // Очищаем стек навигации от более глубоких уровней
+                navigationStack = navigationStack.filter(item => item.type !== 'categories' && item.type !== 'models' && item.type !== 'submodels');
+                navigationStack.push({ type: 'sections', id: sectionId, name: sectionName });
+                
+                updateBreadcrumbsFromStack();
+                elements.pageTitle.textContent = sectionName;
+                
+                const data = await apiFetch(`/categories/${sectionId}`);
+                
+                if (data?.error) {
+                    await loadProductsDirect(sectionId, null, null, null, sectionName);
+                    return;
+                }
+                
+                if (!data || !Array.isArray(data.categories) || data.categories.length === 0) {
+                    await loadProductsDirect(sectionId, null, null, null, sectionName);
+                    return;
+                }
+
+                if (data.categories.length === 1) {
+                    const category = data.categories[0];
+                    const modelsData = await apiFetch(`/models/${sectionId}/${category.id}`);
+                    
+                    if (modelsData?.models && modelsData.models.length === 1 && 
+                        modelsData.models[0].name === "Без модели") {
+                        await loadProductsDirect(sectionId, category.id, null, null, category.name);
+                        return;
+                    }
+                }
+
+                renderCategories(data.categories, sectionId, sectionName);
+                updateBackButton();
+            } catch (error) {
+                await loadProductsDirect(sectionId, null, null, null, sectionName);
+            }
+        }
+
+        async function loadModels(sectionId, sectionName, categoryId, categoryName) {
+            lastAction = { type: 'loadModels', sectionId, sectionName, categoryId, categoryName };
+            
+            try {
+                // Очищаем стек навигации от более глубоких уровней
+                navigationStack = navigationStack.filter(item => item.type !== 'models' && item.type !== 'submodels');
+                navigationStack.push({ type: 'categories', id: categoryId, name: categoryName });
+                
+                updateBreadcrumbsFromStack();
+                elements.pageTitle.textContent = categoryName;
+                
+                const data = await apiFetch(`/models/${sectionId}/${categoryId}`);
+                
+                if (data?.error) {
+                    await loadProductsDirect(sectionId, categoryId, null, null, categoryName);
+                    return;
+                }
+                
+                if (!data || !Array.isArray(data.models) || data.models.length === 0) {
+                    await loadProductsDirect(sectionId, categoryId, null, null, categoryName);
+                    return;
+                }
+
+                if (data.models.length === 1 && data.models[0].name === "Без модели") {
+                    await loadProductsDirect(sectionId, categoryId, null, null, categoryName);
+                    return;
+                }
+
+                const filteredModels = data.models.filter(model => model.name !== "Без модели");
+                
+                if (filteredModels.length === 0) {
+                    await loadProductsDirect(sectionId, categoryId, null, null, categoryName);
+                    return;
+                }
+
+                renderModels(filteredModels, sectionId, sectionName, categoryId, categoryName);
+                updateBackButton();
+            } catch (error) {
+                await loadProductsDirect(sectionId, categoryId, null, null, categoryName);
+            }
+        }
+
+        async function loadSubmodels(sectionId, sectionName, categoryId, categoryName, modelId, modelName) {
+            lastAction = { type: 'loadSubmodels', sectionId, sectionName, categoryId, categoryName, modelId, modelName };
+            
+            try {
+                // Очищаем стек навигации от более глубоких уровней
+                navigationStack = navigationStack.filter(item => item.type !== 'submodels');
+                navigationStack.push({ type: 'models', id: modelId, name: modelName });
+                
+                updateBreadcrumbsFromStack();
+                elements.pageTitle.textContent = modelName;
+                
+                const data = await apiFetch(`/submodels/${sectionId}/${categoryId}/${modelId}`);
+                
+                if (data?.error) {
+                    await loadProductsDirect(sectionId, categoryId, modelId, null, modelName);
+                    return;
+                }
+                
+                if (!data || !Array.isArray(data.submodels) || data.submodels.length === 0) {
+                    await loadProductsDirect(sectionId, categoryId, modelId, null, modelName);
+                    return;
+                }
+
+                if (data.submodels.length === 1 && data.submodels[0].name === "Без подмодели") {
+                    await loadProductsDirect(sectionId, categoryId, modelId, null, modelName);
+                    return;
+                }
+
+                const filteredSubmodels = data.submodels.filter(submodel => submodel.name !== "Без подмодели");
+                
+                if (filteredSubmodels.length === 0) {
+                    await loadProductsDirect(sectionId, categoryId, modelId, null, modelName);
+                    return;
+                }
+
+                renderSubmodels(filteredSubmodels, sectionId, sectionName, categoryId, categoryName, modelId, modelName);
+                updateBackButton();
+            } catch (error) {
+                await loadProductsDirect(sectionId, categoryId, modelId, null, modelName);
+            }
+        }
+
+        async function loadProducts(sectionId, sectionName, categoryId, categoryName, modelId, modelName, submodelId, submodelName) {
+            lastAction = { type: 'loadProducts', sectionId, sectionName, categoryId, categoryName, modelId, modelName, submodelId, submodelName };
+            
+            try {
+                navigationStack.push({ type: 'submodels', id: submodelId, name: submodelName });
+                updateBreadcrumbsFromStack();
+                elements.pageTitle.textContent = submodelName;
+                
+                await loadProductsDirect(sectionId, categoryId, modelId, submodelId, submodelName);
+            } catch (error) {
+                showError('Не удалось загрузить товары');
+            }
+        }
+
+        async function loadProductsDirect(sectionId, categoryId, modelId, submodelId, currentName) {
+            const safeSectionId = sectionId || 'null';
+            const safeCategoryId = categoryId || 'null';
+            const safeModelId = modelId || 'null';
+            const safeSubmodelId = submodelId || 'null';
+            
+            const endpoint = `/products/${safeSectionId}/${safeCategoryId}/${safeModelId}/${safeSubmodelId}`;
+            elements.pageTitle.textContent = currentName;
+            
+            const data = await apiFetch(endpoint);
+            
+            if (data?.error) {
+                showEmptyState(`Ошибка загрузки товаров для: ${currentName}`);
+                return;
+            }
+            
+            if (!data || !Array.isArray(data.products) || data.products.length === 0) {
+                showEmptyState(`Товары не найдены для: ${currentName}`);
+                return;
+            }
+
+            currentProducts = data.products.filter(product => product != null);
+            
+            if (currentProducts.length === 0) {
+                showEmptyState(`Товары не найдены для: ${currentName}`);
+                return;
+            }
+
+            renderAllProducts();
+            updateBackButton();
+        }
+
+        // ========== РЕНДЕРИНГ ИНТЕРФЕЙСА ==========
+
+        function renderSections(sections) {
+            let html = '<div class="space-y-3">';
+            
+            sections.forEach(section => {
+                if (!section) return;
+                
+                const safeId = escapeHtml(section.id);
+                const safeName = escapeHtml(section.name);
+                const minPrice = safeNumber(section.min_price);
+                const priceText = formatPriceText(minPrice);
+                
+                html += `
+                    <div class="category-card fade-in" onclick="loadCategories('${safeId}', '${safeName.replace(/'/g, "\\'")}')">
+                        <div class="p-4">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <h3 class="font-semibold text-lg tg-theme-text text-contrast">${safeName}</h3>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    ${priceText ? `<span class="price-badge">${priceText.replace(' от ', '').replace(' р.', '')}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Добавляем кнопку избранного в главное меню
+            html += `
+                <div class="category-card fade-in" onclick="loadFavorites()">
+                    <div class="p-4">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <i data-feather="heart" class="w-5 h-5 mr-3 text-red-500"></i>
+                                <h3 class="font-semibold text-lg tg-theme-text text-contrast">Избранное</h3>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">${favorites.length} товаров</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Добавляем кнопку вызова такси в главное меню
+            html += `
+                <div class="category-card fade-in" onclick="callTaxi()">
+                    <div class="p-4">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <i data-feather="car" class="w-5 h-5 mr-3 text-purple-600"></i>
+                                <h3 class="font-semibold text-lg tg-theme-text text-contrast">Вызвать такси</h3>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">До магазина</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            html += '</div>';
+            
+            if (!html) {
+                showEmptyState('Нет доступных разделов');
+                return;
+            }
+            
+            // Кнопка "Назад" показывается только если есть куда возвращаться
+            if (navigationStack.length > 0) {
+                html += `
+                    <button onclick="goBack()" class="back-button">
+                        <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                        Назад
+                    </button>
+                `;
+            }
+            
+            elements.content.innerHTML = html;
+            scheduleFeatherReplace();
+        }
+
+        function renderCategories(categories, sectionId, sectionName) {
+            let html = '<div class="space-y-3">';
+            
+            categories.forEach(category => {
+                if (!category) return;
+                
+                const safeId = escapeHtml(category.id);
+                const safeName = escapeHtml(category.name);
+                const minPrice = safeNumber(category.min_price);
+                const priceText = formatPriceText(minPrice);
+                
+                html += `
+                    <div class="category-card fade-in" onclick="loadModels('${escapeHtml(sectionId)}', '${escapeHtml(sectionName).replace(/'/g, "\\'")}', '${safeId}', '${safeName.replace(/'/g, "\\'")}')">
+                        <div class="p-4">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <h3 class="font-semibold text-lg tg-theme-text text-contrast">${safeName}</h3>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    ${priceText ? `<span class="price-badge">${priceText.replace(' от ', '').replace(' р.', '')}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            if (!html) {
+                showEmptyState('Нет доступных категорий');
+                return;
+            }
+            
+            html += `
+                <button onclick="goBack()" class="back-button">
+                    <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                    Назад
+                </button>
+            `;
+            
+            elements.content.innerHTML = html;
+            scheduleFeatherReplace();
+        }
+
+        function renderModels(models, sectionId, sectionName, categoryId, categoryName) {
+            let html = '<div class="space-y-3">';
+            
+            models.forEach(model => {
+                if (!model) return;
+                
+                const safeId = escapeHtml(model.id);
+                const safeName = escapeHtml(model.name);
+                const minPrice = safeNumber(model.min_price);
+                const priceText = formatPriceText(minPrice);
+                
+                html += `
+                    <div class="category-card fade-in" onclick="loadSubmodels('${escapeHtml(sectionId)}', '${escapeHtml(sectionName).replace(/'/g, "\\'")}', '${escapeHtml(categoryId)}', '${escapeHtml(categoryName).replace(/'/g, "\\'")}', '${safeId}', '${safeName.replace(/'/g, "\\'")}')">
+                        <div class="p-4">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <h3 class="font-semibold text-lg tg-theme-text text-contrast">${safeName}</h3>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    ${priceText ? `<span class="price-badge">${priceText.replace(' от ', '').replace(' р.', '')}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            if (!html) {
+                showEmptyState('Нет доступных моделей');
+                return;
+            }
+            
+            html += `
+                <button onclick="goBack()" class="back-button">
+                    <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                    Назад
+                </button>
+            `;
+            
+            elements.content.innerHTML = html;
+            scheduleFeatherReplace();
+        }
+
+        function renderSubmodels(submodels, sectionId, sectionName, categoryId, categoryName, modelId, modelName) {
+            let html = '<div class="space-y-3">';
+            
+            submodels.forEach(submodel => {
+                if (!submodel) return;
+                
+                const safeId = escapeHtml(submodel.id);
+                const safeName = escapeHtml(submodel.name);
+                const minPrice = safeNumber(submodel.min_price);
+                const priceText = formatPriceText(minPrice);
+                
+                html += `
+                    <div class="category-card fade-in" onclick="loadProducts('${escapeHtml(sectionId)}', '${escapeHtml(sectionName).replace(/'/g, "\\'")}', '${escapeHtml(categoryId)}', '${escapeHtml(categoryName).replace(/'/g, "\\'")}', '${escapeHtml(modelId)}', '${escapeHtml(modelName).replace(/'/g, "\\'")}', '${safeId}', '${safeName.replace(/'/g, "\\'")}')">
+                        <div class="p-4">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <h3 class="font-semibold text-lg tg-theme-text text-contrast">${safeName}</h3>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    ${priceText ? `<span class="price-badge">${priceText.replace(' от ', '').replace(' р.', '')}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            if (!html) {
+                showEmptyState('Нет доступных подмоделей');
+                return;
+            }
+            
+            html += `
+                <button onclick="goBack()" class="back-button">
+                    <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                    Назад
+                </button>
+            `;
+            
+            elements.content.innerHTML = html;
+            scheduleFeatherReplace();
+        }
+
+        function renderProductBreadcrumbs(navigation) {
+            if (!navigation.section && !navigation.category && !navigation.model && !navigation.submodel) {
+                return '';
+            }
+
+            const breadcrumbs = [];
+            
+            if (navigation.section) {
+                breadcrumbs.push({
+                    name: navigation.section.name,
+                    action: `loadCategories('${navigation.section.id}', '${navigation.section.name.replace(/'/g, "\\'")}')`
+                });
+            }
+            
+            if (navigation.category) {
+                breadcrumbs.push({
+                    name: navigation.category.name,
+                    action: `loadModels('${navigation.section.id}', '${navigation.section.name.replace(/'/g, "\\'")}', '${navigation.category.id}', '${navigation.category.name.replace(/'/g, "\\'")}')`
+                });
+            }
+            
+            if (navigation.model && navigation.model.name !== "Без модели") {
+                breadcrumbs.push({
+                    name: navigation.model.name,
+                    action: `loadSubmodels('${navigation.section.id}', '${navigation.section.name.replace(/'/g, "\\'")}', '${navigation.category.id}', '${navigation.category.name.replace(/'/g, "\\'")}', '${navigation.model.id}', '${navigation.model.name.replace(/'/g, "\\'")}')`
+                });
+            }
+            
+            if (navigation.submodel && navigation.submodel.name !== "Без подмодели") {
+                breadcrumbs.push({
+                    name: navigation.submodel.name,
+                    action: `loadProducts('${navigation.section.id}', '${navigation.section.name.replace(/'/g, "\\'")}', '${navigation.category.id}', '${navigation.category.name.replace(/'/g, "\\'")}', '${navigation.model.id}', '${navigation.model.name.replace(/'/g, "\\'")}', '${navigation.submodel.id}', '${navigation.submodel.name.replace(/'/g, "\\'")}')`
+                });
+            }
+
+            if (breadcrumbs.length === 0) {
+                return '';
+            }
+
+            let html = '<div class="mb-4 p-3 bg-gray-50 rounded-lg">';
+            html += '<div class="flex items-center flex-wrap text-sm text-gray-600">';
+            
+            breadcrumbs.forEach((crumb, index) => {
+                if (index > 0) {
+                    html += '<span class="breadcrumb-separator">→</span>';
+                }
+                html += `<span class="breadcrumb-item" onclick="${crumb.action}">${escapeHtml(crumb.name)}</span>`;
+            });
+
+            html += '</div></div>';
+            return html;
+        }
+
+        function renderAllProducts() {
+            if (!currentProducts || currentProducts.length === 0) {
+                showEmptyState('Товары не найдены');
+                return;
+            }
+
+            const navigation = getCurrentNavigation();
+            let html = '<div class="product-list">';
+            
+            html += `
+                <div class="mb-4 p-4 bg-white rounded-xl shadow-sm">
+                    <h2 class="text-lg font-semibold text-contrast">Найдено товаров: ${currentProducts.length}</h2>
+                </div>
+            `;
+            
+            html += renderProductBreadcrumbs(navigation);
+
+            currentProducts.forEach((product, index) => {
+                if (!product) return;
+                
+                const productId = generateProductId(product);
+                const isFavorite = favorites.some(fav => fav.id === productId);
+                const color = safeString(product.color, 'Не указан');
+                const price = product.price ? formatPriceForBadge(product.price) : 'Цена не указана';
+                const description = safeString(product.description);
+                const photoUrl = safeString(product.photo_url);
+                const photoDescription = safeString(product.photo_description);
+                
+                let imageUrl = extractPhotoFilenameFromUrl(photoUrl);
+                const alternativeUrls = getAlternativeImageUrls(photoUrl);
+
+                html += `
+                    <div class="product-card fade-in" data-product-index="${index}">
+                `;
+
+                // Кнопка избранного
+                html += `
+                    <div class="favorite-button ${isFavorite ? 'active' : ''}" onclick="toggleFavorite(${JSON.stringify(product).replace(/"/g, '&quot;')}, ${index})">
+                        <i data-feather="heart"></i>
+                    </div>
+                `;
+
+                if (imageUrl || alternativeUrls.length > 0) {
+                    const finalImageUrl = imageUrl || alternativeUrls[0];
+                    html += `
+                        <img src="${escapeHtml(finalImageUrl)}" alt="${escapeHtml(color)}" 
+                             class="product-image w-full h-48 object-cover"
+                             onerror="handleImageError(this, '${escapeHtml(photoUrl)}', ${JSON.stringify(alternativeUrls).replace(/"/g, '&quot;')})"
+                             onload="handleImageLoad(this)"
+                             loading="lazy"
+                             crossorigin="anonymous"
+                             data-tried-alternative="0">
+                        <div class="w-full h-48 bg-gray-100 flex items-center justify-center hidden image-placeholder">
+                            <div class="text-center text-gray-400">
+                                <i data-feather="image" class="w-12 h-12 mx-auto mb-2"></i>
+                                <div class="text-sm">Не удалось загрузить фото</div>
+                                <div class="text-xs mt-1">ID: ${escapeHtml(photoUrl?.match(/[?&]id=([^&]+)/)?.[1] || 'неизвестен')}</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="w-full h-48 bg-gray-100 flex items-center justify-center">
+                            <div class="text-center text-gray-400">
+                                <i data-feather="package" class="w-12 h-12 mx-auto mb-2"></i>
+                                <div class="text-sm">Фото не доступно</div>
+                                ${photoUrl ? `<div class="text-xs mt-1">ID: ${escapeHtml(photoUrl.match(/[?&]id=([^&]+)/)?.[1] || 'неизвестен')}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += `
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-semibold text-lg text-contrast">${escapeHtml(color)}</h3>
+                                ${price && price !== 'Цена не указана' ? `
+                                    <span class="price-badge">${escapeHtml(price)}</span>
+                                ` : ''}
+                            </div>
+                            
+                            <div class="space-y-2 mb-4">
+                `;
+
+                if (photoDescription) {
+                    html += `<p class="text-gray-700 text-contrast">${escapeHtml(photoDescription)}</p>`;
+                }
+
+                if (description) {
+                    html += `<p class="text-gray-500 text-sm text-contrast">${escapeHtml(description)}</p>`;
+                }
+
+                html += `</div>`;
+
+                // Двухколоночное расположение кнопок
+                html += `
+                    <div class="two-column-buttons">
+                        <button onclick="makePhoneCall()" class="large-button phone-button">
+                            <i data-feather="phone" class="w-4 h-4"></i>
+                            ${CONTACT_INFO.phone}
+                        </button>
+                        <button onclick="shareProduct(${index})" class="large-button share-button">
+                            <i data-feather="share-2" class="w-4 h-4"></i>
+                            Поделиться
+                        </button>
+                    </div>
+                `;
+
+                html += `
+                    <div class="mt-3">
+                        <button onclick="contactAboutSpecificProduct(${index})" 
+                                class="w-full py-3 tg-theme-button rounded-lg transition font-medium flex items-center justify-center">
+                            <i data-feather="message-circle" class="w-4 h-4 mr-2"></i>
+                            Узнать подробнее
+                        </button>
+                    </div>
+                `;
+
+                html += `</div></div>`;
+            });
+
+            html += `
+                <button onclick="goBack()" class="back-button">
+                    <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                    Назад
+                </button>
+            `;
+
+            html += '</div>';
+            
+            elements.content.innerHTML = html;
+            scheduleFeatherReplace();
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function contactAboutSpecificProduct(productIndex) {
+            const product = currentProducts[productIndex];
+            const navigation = getCurrentNavigation();
+            
+            const productInfo = [
+                navigation.section?.name,
+                navigation.category?.name,
+                navigation.model?.name,
+                navigation.submodel?.name,
+                product?.color,
+                product?.price && product.price !== 'Цена не указана' ? product.price : ''
+            ].filter(Boolean).join(' → ');
+
+            const message = `Здравствуйте! Интересует товар: ${productInfo}. Подскажите подробности.`;
+            
+            if (tg) {
+                tg.openTelegramLink(`https://t.me/SkidkaService01?text=${encodeURIComponent(message)}`);
+            } else {
+                window.open(`https://t.me/SkidkaService01?text=${encodeURIComponent(message)}`, '_blank');
+            }
+        }
+
+        // ========== УПРАВЛЕНИЕ НАВИГАЦИЕЙ ==========
+
+        function getCurrentNavigation() {
+            const navigation = {
+                section: null,
+                category: null,
+                model: null,
+                submodel: null
+            };
+
+            navigationStack.forEach(item => {
+                switch (item.type) {
+                    case 'sections':
+                        navigation.section = { id: item.id, name: item.name };
+                        break;
+                    case 'categories':
+                        navigation.category = { id: item.id, name: item.name };
+                        break;
+                    case 'models':
+                        navigation.model = { id: item.id, name: item.name };
+                        break;
+                    case 'submodels':
+                        navigation.submodel = { id: item.id, name: item.name };
+                        break;
+                }
+            });
+
+            return navigation;
+        }
+
+        function updateBreadcrumbsFromStack() {
+            const items = [{ name: 'МЕНЮ', action: 'loadSections' }];
+            
+            navigationStack.forEach(item => {
+                if (item && item.name) {
+                    items.push({
+                        name: item.name,
+                        action: null
+                    });
+                }
+            });
+            
+            updateBreadcrumbs(items);
+        }
+
+        function updateBreadcrumbs(items) {
+            elements.breadcrumbs.innerHTML = '';
+            
+            items.forEach((item, index) => {
+                if (!item || !item.name) return;
+                
+                const crumb = document.createElement('span');
+                crumb.className = 'flex items-center whitespace-nowrap';
+                
+                if (index > 0) {
+                    const separator = document.createElement('span');
+                    separator.className = 'mx-1 tg-theme-hint text-contrast';
+                    separator.innerHTML = '<i data-feather="chevron-right" class="w-3 h-3"></i>';
+                    elements.breadcrumbs.appendChild(separator);
+                }
+                
+                const link = document.createElement('span');
+                link.className = 'tg-theme-text text-sm truncate max-w-[120px] text-contrast';
+                link.textContent = item.name;
+                link.title = item.name;
+                
+                if (item.action && index === 0) {
+                    link.style.cursor = 'pointer';
+                    link.addEventListener('click', () => {
+                        if (item.action === 'loadSections') {
+                            loadSections();
+                        }
+                    });
+                } else {
+                    link.style.cursor = 'default';
+                }
+                
+                crumb.appendChild(link);
+                elements.breadcrumbs.appendChild(crumb);
+            });
+            
+            scheduleFeatherReplace();
+        }
+
+        function updateBackButton() {
+            if (!tg) return;
+            
+            try {
+                if (navigationStack.length > 0) {
+                    if (tg.BackButton) {
+                        tg.BackButton.show();
+                        tg.BackButton.onClick(goBack);
+                    }
+                } else {
+                    if (tg.BackButton) {
+                        tg.BackButton.hide();
+                    }
+                }
+            } catch (error) {
+                console.log('Ошибка обновления кнопки назад:', error);
+            }
+        }
+
+        function goBack() {
+            if (navigationStack.length > 0) {
+                const currentItem = navigationStack.pop();
+                
+                if (navigationStack.length === 0) {
+                    loadSections();
+                } else {
+                    const previousItem = navigationStack[navigationStack.length - 1];
+                    handleBackNavigation(previousItem.type);
+                }
+            } else if (tg) {
+                tg.close();
+            }
+        }
+
+        function handleBackNavigation(type) {
+            switch (type) {
+                case 'sections':
+                    loadSections();
+                    break;
+                case 'categories':
+                    const section = navigationStack.find(item => item.type === 'sections');
+                    if (section) {
+                        loadCategories(section.id, section.name);
+                    } else {
+                        loadSections();
+                    }
+                    break;
+                case 'models':
+                    const sectionForModel = navigationStack.find(item => item.type === 'sections');
+                    const category = navigationStack.find(item => item.type === 'categories');
+                    if (sectionForModel && category) {
+                        loadModels(sectionForModel.id, sectionForModel.name, category.id, category.name);
+                    } else {
+                        loadSections();
+                    }
+                    break;
+                case 'submodels':
+                    const sectionForSubmodel = navigationStack.find(item => item.type === 'sections');
+                    const categoryForSubmodel = navigationStack.find(item => item.type === 'categories');
+                    const model = navigationStack.find(item => item.type === 'models');
+                    if (sectionForSubmodel && categoryForSubmodel && model) {
+                        loadSubmodels(sectionForSubmodel.id, sectionForSubmodel.name, categoryForSubmodel.id, categoryForSubmodel.name, model.id, model.name);
+                    } else {
+                        loadSections();
+                    }
+                    break;
+                default:
+                    loadSections();
+            }
+        }
+
+        // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
+
+        function showLoading() {
+            elements.loading.classList.remove('hidden');
+            elements.content.classList.add('hidden');
+            elements.emptyState.classList.add('hidden');
+            elements.errorState.classList.add('hidden');
+        }
+
+        function hideLoading() {
+            elements.loading.classList.add('hidden');
+            elements.content.classList.remove('hidden');
+            elements.emptyState.classList.add('hidden');
+            elements.errorState.classList.add('hidden');
+        }
+
+        function showEmptyState(message = 'Товары не найдены') {
+            elements.content.classList.add('hidden');
+            elements.loading.classList.add('hidden');
+            elements.emptyState.classList.remove('hidden');
+            elements.errorState.classList.add('hidden');
+            elements.emptyMessage.textContent = message;
+            updateBackButton();
+        }
+
+        function showError(message = 'Произошла ошибка') {
+            elements.content.classList.add('hidden');
+            elements.loading.classList.add('hidden');
+            elements.emptyState.classList.add('hidden');
+            elements.errorState.classList.remove('hidden');
+            elements.errorMessage.textContent = message;
+            updateBackButton();
+        }
+
+        function openSideMenu() {
+            elements.sideMenu.classList.remove('hidden');
+            setTimeout(() => {
+                const menuPanel = elements.sideMenu.querySelector('div');
+                if (menuPanel) {
+                    menuPanel.classList.remove('translate-x-full');
+                }
+            }, 10);
+        }
+
+        function closeSideMenu() {
+            const menuPanel = elements.sideMenu.querySelector('div');
+            if (menuPanel) {
+                menuPanel.classList.add('translate-x-full');
+            }
+            setTimeout(() => {
+                elements.sideMenu.classList.add('hidden');
+            }, 300);
+        }
+
+        function retryLastAction() {
+            if (!lastAction) {
+                loadSections();
+                return;
+            }
+
+            switch (lastAction.type) {
+                case 'loadSections':
+                    loadSections();
+                    break;
+                case 'loadCategories':
+                    loadCategories(lastAction.sectionId, lastAction.sectionName);
+                    break;
+                case 'loadModels':
+                    loadModels(lastAction.sectionId, lastAction.sectionName, lastAction.categoryId, lastAction.categoryName);
+                    break;
+                case 'loadSubmodels':
+                    loadSubmodels(lastAction.sectionId, lastAction.sectionName, lastAction.categoryId, lastAction.categoryName, lastAction.modelId, lastAction.modelName);
+                    break;
+                case 'loadProducts':
+                    loadProducts(lastAction.sectionId, lastAction.sectionName, lastAction.categoryId, lastAction.categoryName, lastAction.modelId, lastAction.modelName, lastAction.submodelId, lastAction.submodelName);
+                    break;
+                default:
+                    loadSections();
+            }
+        }
+
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                initTelegramApp();
+                fixMobileColors();
+                scheduleFeatherReplace();
+                
+                const toggleMenuBtn = document.getElementById('toggleMenu');
+                const closeMenuBtn = document.getElementById('closeMenu');
+                const installButton = document.getElementById('installButton');
+                
+                if (toggleMenuBtn) {
+                    toggleMenuBtn.addEventListener('click', openSideMenu);
+                }
+                
+                if (closeMenuBtn) {
+                    closeMenuBtn.addEventListener('click', closeSideMenu);
+                }
+
+                if (installButton) {
+                    installButton.addEventListener('click', installPWA);
+                }
+                
+                elements.sideMenu.addEventListener('click', (e) => {
+                    if (e.target === elements.sideMenu) {
+                        closeSideMenu();
+                    }
+                });
+
+                // Обработчик события beforeinstallprompt для PWA
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    // Предотвращаем автоматическое отображение подсказки
+                    e.preventDefault();
+                    // Сохраняем событие для использования позже
+                    deferredPrompt = e;
+                    // Показываем кнопку установки
+                    if (installButton) {
+                        installButton.style.display = 'flex';
+                    }
+                });
+
+                // Обработчик события appinstalled
+                window.addEventListener('appinstalled', (e) => {
+                    // Приложение было установлено
+                    deferredPrompt = null;
+                    if (installButton) {
+                        installButton.style.display = 'none';
+                    }
+                });
+                
+                setTimeout(() => {
+                    loadSections();
+                }, 100);
+                
+            } catch (error) {
+                console.error('Ошибка инициализации:', error);
+                showError('Ошибка загрузки приложения');
+            }
+        });
+
+        // Глобальные функции
+        window.loadSections = loadSections;
+        window.loadCategories = loadCategories;
+        window.loadModels = loadModels;
+        window.loadSubmodels = loadSubmodels;
+        window.loadProducts = loadProducts;
+        window.loadFavorites = loadFavorites;
+        window.contactAboutSpecificProduct = contactAboutSpecificProduct;
+        window.contactAboutSpecificProductFromFavorites = contactAboutSpecificProductFromFavorites;
+        window.toggleFavorite = toggleFavorite;
+        window.toggleFavoriteFromFavorites = toggleFavoriteFromFavorites;
+        window.shareProduct = shareProduct;
+        window.shareProductFromFavorites = shareProductFromFavorites;
+        window.makePhoneCall = makePhoneCall;
+        window.open2GIS = open2GIS;
+        window.openTelegramChannel = openTelegramChannel;
+        window.callTaxi = callTaxi;
+        window.openTaxiMenu = openTaxiMenu;
+        window.openYandexTaxi = openYandexTaxi;
+        window.openUber = openUber;
+        window.installPWA = installPWA;
+        window.showInstallPrompt = showInstallPrompt;
+        window.showInstallInstructions = showInstallInstructions;
+        window.renderAllProducts = renderAllProducts;
+        window.goBack = goBack;
+        window.openSideMenu = openSideMenu;
+        window.closeSideMenu = closeSideMenu;
+        window.retryLastAction = retryLastAction;
+        window.handleImageError = handleImageError;
+        window.handleImageLoad = handleImageLoad;
+    </script>
+</body>
+</html>
